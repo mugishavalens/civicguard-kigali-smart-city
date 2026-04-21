@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'admin';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+    function isValidUser(data) {
+      return data.size() >= 4 &&
+             data.id is string && data.id == request.auth.uid &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.role in ['citizen', 'admin'] &&
+             (!('createdAt' in data) || data.createdAt == request.time);
+    }
+
+    function isValidIncident(data) {
+      return data.size() >= 5 &&
+             data.type in ['fire', 'medical', 'crime', 'traffic', 'utilities', 'other'] &&
+             data.description is string && data.description.size() <= 3000 &&
+             data.status in ['pending', 'in-progress', 'resolved', 'rejected'] &&
+             data.timestamp is timestamp &&
+             data.reporterId is string &&
+             data.location is map &&
+             data.location.latitude is number &&
+             data.location.longitude is number &&
+             (!('adminComment' in data) || data.adminComment is string && data.adminComment.size() <= 2000);
+    }
+
+    // --- Rules ---
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin(); // Only admins can list all users
+      
+      allow create: if isSignedIn() && 
+                      isOwner(userId) && 
+                      isValidId(userId) && 
+                      isValidUser(incoming()) &&
+                      incoming().role in ['citizen', 'admin'];
+      
+      allow update: if isSignedIn() && 
+                      isOwner(userId) && 
+                      isValidUser(incoming()) &&
+                      incoming().role == existing().role && // Role immutability
+                      incoming().id == existing().id &&
+                      incoming().diff(existing()).affectedKeys().hasOnly(['name', 'email']);
+    }
+
+    // Incidents Collection
+    match /incidents/{incidentId} {
+      allow get: if isSignedIn() && (isOwner(existing().reporterId) || isAdmin());
+      
+      // Secure List Query: Citizen can only list their own, Admin can list all.
+      allow list: if isSignedIn() && (
+        (resource.data.reporterId == request.auth.uid) || isAdmin()
+      );
+
+      allow create: if isSignedIn() && 
+                      isValidId(incidentId) && 
+                      isValidIncident(incoming()) &&
+                      incoming().reporterId == request.auth.uid &&
+                      incoming().status == 'pending' &&
+                      incoming().timestamp == request.time;
+
+      allow update: if isSignedIn() && (
+        // Admin Update: Status and comments
+        (isAdmin() && 
+         isValidIncident(incoming()) &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'adminComment', 'updatedAt']) &&
+         existing().status != 'resolved' && // Terminal state locking
+         existing().status != 'rejected') ||
+        
+        // Citizen Update: Correcting description only if still pending
+        (isOwner(existing().reporterId) && 
+         isValidIncident(incoming()) &&
+         existing().status == 'pending' &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['description', 'type']))
+      );
+
+      allow delete: if isAdmin(); // Only admins can delete for cleanup
+    }
+  }
+}

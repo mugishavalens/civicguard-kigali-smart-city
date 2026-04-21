@@ -1,0 +1,36 @@
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="113" y1="92" x2="780" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EDF9F6"/>
+      <stop offset="0.5" stop-color="#D7EEE8"/>
+      <stop offset="1" stop-color="#A9D2C6"/>
+    </linearGradient>
+    <filter id="grain" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.08"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="900" height="900" rx="42" fill="url(#g1)"/>
+  <circle cx="230" cy="180" r="110" fill="white" fill-opacity="0.5"/>
+  <path d="M0 690C101 651 196 630 294 641C405 653 492 722 592 735C690 747 785 703 900 666V900H0V690Z" fill="#6D928A"/>
+  <path d="M0 742C120 705 219 698 310 713C400 727 485 774 574 784C669 796 776 771 900 726V900H0V742Z" fill="#4E6D68"/>
+  <rect x="110" y="355" width="78" height="190" rx="8" fill="#4E6B67"/>
+  <rect x="205" y="314" width="96" height="231" rx="8" fill="#496460"/>
+  <rect x="319" y="252" width="88" height="293" rx="8" fill="#3A5351"/>
+  <rect x="425" y="291" width="76" height="254" rx="8" fill="#587671"/>
+  <rect x="518" y="220" width="110" height="325" rx="8" fill="#324847"/>
+  <rect x="646" y="279" width="92" height="266" rx="8" fill="#4A6662"/>
+  <rect x="753" y="334" width="70" height="211" rx="8" fill="#597773"/>
+  <rect x="230" y="341" width="16" height="18" rx="4" fill="#DBF0E7"/>
+  <rect x="257" y="341" width="16" height="18" rx="4" fill="#DBF0E7"/>
+  <rect x="230" y="373" width="16" height="18" rx="4" fill="#DBF0E7"/>
+  <rect x="257" y="373" width="16" height="18" rx="4" fill="#DBF0E7"/>
+  <rect x="548" y="260" width="20" height="22" rx="4" fill="#DBF0E7"/>
+  <rect x="578" y="260" width="20" height="22" rx="4" fill="#DBF0E7"/>
+  <rect x="548" y="296" width="20" height="22" rx="4" fill="#DBF0E7"/>
+  <rect x="578" y="296" width="20" height="22" rx="4" fill="#DBF0E7"/>
+  <rect width="900" height="900" rx="42" filter="url(#grain)" opacity="0.45"/>
+</svg>

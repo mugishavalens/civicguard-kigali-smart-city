@@ -1,0 +1,8 @@
+{
+  "name": "CivicGuard: Kigali Smart City Initiative",
+  "description": "The official community safety monitoring platform for Kigali Smart City. Empowering citizens through real-time incident reporting and data-driven emergency response.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

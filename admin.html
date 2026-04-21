@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CivicGuard Kigali | Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body data-page="admin">
+    <div class="page-shell">
+      <header class="site-header site-header--nav">
+        <a class="brand" href="index.html">
+          <span class="brand__mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="brand__type">
+            <strong>Civic<span>Guard</span></strong>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <a href="index.html" data-i18n="navHome">Home</a>
+          <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+          <a href="index.html#about" data-i18n="navAbout">About Us</a>
+          <a href="index.html#contact" data-i18n="navContact">Contact</a>
+          <a href="admin.html" data-dashboard-link data-i18n="navDashboard">Dashboard</a>
+        </nav>
+
+        <div class="site-header__actions">
+          <div class="compact-tools compact-tools--labels">
+            <label class="tool-group">
+              <span data-i18n="navLanguage">Language</span>
+              <select id="language-select" class="tool-select" aria-label="Language selector">
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="rw">RW</option>
+              </select>
+            </label>
+            <label class="tool-group">
+              <span data-i18n="navMode">Mode</span>
+              <button id="theme-toggle" class="tool-button" type="button" aria-label="Switch theme">◐</button>
+            </label>
+          </div>
+          <button id="logout-button" class="sign-button sign-button--ghost" type="button" data-i18n="logoutButton">Logout</button>
+        </div>
+      </header>
+
+      <main class="dashboard-ref">
+        <section class="hero-ref hero-ref--dashboard">
+          <div class="hero-ref__copy">
+            <span class="hero-pill" data-i18n="adminEyebrow">Admin control center</span>
+            <h1 class="display-title display-title--page">
+              <span data-i18n="adminLineOne">Review and</span>
+              <span class="accent-word" data-i18n="adminLineTwo">respond faster</span>
+            </h1>
+            <p class="hero-ref__lede" data-i18n="adminTitle">Review incidents, respond quickly, and measure city safety performance.</p>
+            <p id="session-summary" class="session-line"></p>
+            <div class="stats-strip stats-strip--wide">
+              <article class="stat-box">
+                <strong id="metric-total">0</strong>
+                <span data-i18n="metricTotal">Total reports</span>
+              </article>
+              <article class="stat-box">
+                <strong id="metric-critical">0</strong>
+                <span data-i18n="metricCritical">Critical cases</span>
+              </article>
+              <article class="stat-box">
+                <strong id="metric-resolved">0</strong>
+                <span data-i18n="metricResolved">Resolved</span>
+              </article>
+            </div>
+          </div>
+          <div class="hero-visual hero-visual--dashboard">
+            <img
+              src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=1500&q=80"
+              alt="Operations team monitoring city infrastructure and safety"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        </section>
+
+        <section class="dashboard-columns">
+          <article class="surface-card map-card">
+            <div class="section-head section-head--tight">
+              <p class="section-tag">City map monitor</p>
+              <h2>Latest reported incident location in Kigali.</h2>
+            </div>
+            <iframe
+              id="admin-map-frame"
+              title="Admin incident location map"
+              class="map-frame"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=30.0300%2C-1.9800%2C30.1800%2C-1.8600&layer=mapnik"
+            ></iframe>
+            <p id="admin-map-caption" class="map-caption">Map auto-updates with the newest submitted incident location.</p>
+          </article>
+
+          <article class="surface-card">
+            <div class="section-head section-head--tight">
+              <p class="section-tag" data-i18n="analyticsTitle">Incident analytics</p>
+              <h2 data-i18n="analyticsText">High-level indicators for operational planning.</h2>
+            </div>
+            <div id="analytics-bars" class="bars"></div>
+          </article>
+        </section>
+        <section>
+          <article class="surface-card">
+            <div class="section-head section-head--tight">
+              <p class="section-tag" data-i18n="queueTitle">Response queue</p>
+              <h2 data-i18n="queueText">Open incidents that require action or communication.</h2>
+            </div>
+            <div id="admin-reports" class="report-list"></div>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="site-footer__brand">
+          <a class="brand" href="index.html">
+            <span class="brand__mark">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="brand__type">
+              <strong>Civic<span>Guard</span></strong>
+            </span>
+          </a>
+          <p data-i18n="footerText">Community safety monitoring aligned with the Kigali Smart City Initiative.</p>
+        </div>
+        <div class="site-footer__links">
+          <a href="index.html" data-i18n="navHome">Home</a>
+          <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+          <a href="index.html#about" data-i18n="navAbout">About Us</a>
+          <a href="index.html#contact" data-i18n="navContact">Contact</a>
+        </div>
+        <div class="site-footer__socials">
+          <a href="https://x.com/kigalicity" target="_blank" rel="noopener noreferrer">X</a>
+          <a href="https://facebook.com/CityofKigali" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a href="https://instagram.com/city_of_kigali" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://linkedin.com/company/city-of-kigali" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+        <div class="site-footer__bottom">
+          <p data-i18n="footerCopyright">© 2026 CivicGuard Kigali • Official Republic of Rwanda Portal</p>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>

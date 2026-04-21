@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CivicGuard Kigali | Authentication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body data-page="auth">
+    <div class="page-shell">
+      <header class="site-header site-header--nav">
+        <a class="brand" href="index.html">
+          <span class="brand__mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="brand__type">
+            <strong>Civic<span>Guard</span></strong>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <a href="index.html" data-i18n="navHome">Home</a>
+          <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+          <a href="index.html#about" data-i18n="navAbout">About Us</a>
+          <a href="index.html#contact" data-i18n="navContact">Contact</a>
+          <a href="auth.html" data-dashboard-link data-i18n="navDashboard">Dashboard</a>
+        </nav>
+
+        <div class="site-header__actions">
+          <div class="compact-tools compact-tools--labels">
+            <label class="tool-group">
+              <span data-i18n="navLanguage">Language</span>
+              <select id="language-select" class="tool-select" aria-label="Language selector">
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="rw">RW</option>
+              </select>
+            </label>
+            <label class="tool-group">
+              <span data-i18n="navMode">Mode</span>
+              <button id="theme-toggle" class="tool-button" type="button" aria-label="Switch theme">◐</button>
+            </label>
+          </div>
+          <a class="sign-button" href="auth.html" data-auth-link data-i18n="openPortal">Sign In</a>
+        </div>
+      </header>
+
+      <main class="auth-stage auth-stage--single">
+        <section class="surface-card auth-card">
+          <section class="auth-card__right auth-login-panel">
+            <div class="auth-panel__head">
+              <h2 data-i18n="authPanelTitle">Welcome back to CivicGuard</h2>
+              <p class="auth-subline">
+                <span>Login to continue.</span>
+                <button type="button" class="text-button auth-create-link" data-switch-tab="register" data-i18n="registerButton">Create Account</button>
+              </p>
+            </div>
+
+            <form id="login-form" class="stack auth-form">
+              <div id="login-error" class="form-message form-message--error" hidden></div>
+              <div id="login-info" class="form-message form-message--success" hidden></div>
+              <div class="field">
+                <label for="login-email" data-i18n="emailAddress">Email address</label>
+                <input id="login-email" name="email" type="email" autocomplete="email" placeholder="Enter your email" required />
+              </div>
+              <div class="field">
+                <label for="login-password" data-i18n="passwordLabel">Password</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="********" required />
+              </div>
+              <div class="auth-form__meta auth-form__meta--inline">
+                <label class="remember-checkbox">
+                  <input type="checkbox" />
+                  <span>Remember me</span>
+                </label>
+                <button type="button" id="forgot-password" class="text-button" data-i18n="forgotPassword">Forgot Password?</button>
+              </div>
+              <button type="submit" class="solid-button solid-button--full" data-i18n="loginButton">Login</button>
+            </form>
+          </section>
+
+          <aside class="auth-card__left auth-art-panel">
+            <figure class="auth-stage__media auth-stage__media--full">
+              <img
+                src="https://ugandarwandagorillatours.com/wp-content/uploads/2019/09/Areial-View-Of-Kigali-1.jpg"
+                alt="Urban smart city corridor with high-density buildings and traffic flow"
+                loading="eager"
+                decoding="async"
+              />
+              <figcaption class="auth-art-panel__caption">
+                <span class="auth-art-panel__eyebrow">Kigali Smart City Initiative</span>
+                <strong>Secure reporting for real urban incidents, faster response, and accountable follow-up.</strong>
+              </figcaption>
+            </figure>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer__brand">
+        <a class="brand" href="index.html">
+          <span class="brand__mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="brand__type">
+            <strong>Civic<span>Guard</span></strong>
+          </span>
+        </a>
+        <p data-i18n="footerText">Community safety monitoring aligned with the Kigali Smart City Initiative.</p>
+      </div>
+      <div class="site-footer__links">
+        <a href="index.html" data-i18n="navHome">Home</a>
+        <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+        <a href="index.html#about" data-i18n="navAbout">About Us</a>
+        <a href="index.html#contact" data-i18n="navContact">Contact</a>
+      </div>
+      <div class="site-footer__socials">
+        <a href="https://x.com/kigalicity" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://facebook.com/CityofKigali" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://instagram.com/city_of_kigali" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://linkedin.com/company/city-of-kigali" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+      <div class="site-footer__bottom">
+        <p data-i18n="footerCopyright">© 2026 CivicGuard Kigali • Official Republic of Rwanda Portal</p>
+      </div>
+    </footer>
+
+    <div id="register-modal" class="auth-modal" hidden>
+      <div class="auth-modal__backdrop" data-switch-tab="login"></div>
+      <section class="surface-card auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
+        <button type="button" class="auth-modal__close" data-switch-tab="login" aria-label="Close create account form">×</button>
+        <form id="register-form" class="stack auth-form auth-form--modal">
+          <div class="auth-panel__head auth-panel__head--form">
+            <h2 id="register-modal-title">Create Account</h2>
+            <p class="auth-subline">
+              <span>New to CivicGuard?</span>
+              <button type="button" class="text-button auth-create-link" data-switch-tab="login" data-i18n="loginLink">Sign In</button>
+            </p>
+          </div>
+          <div id="register-error" class="form-message form-message--error" hidden></div>
+          <div id="register-success" class="form-message form-message--success" hidden></div>
+          <div class="field">
+            <label for="register-name" data-i18n="fullName">Full Name</label>
+            <input id="register-name" name="name" type="text" autocomplete="name" placeholder="Your full name" required />
+          </div>
+          <div class="field">
+            <label for="register-email" data-i18n="emailAddress">Email address</label>
+            <input id="register-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="register-password" data-i18n="passwordLabel">Password</label>
+            <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Create a strong password" required />
+          </div>
+          <div class="field">
+            <label for="register-confirm-password" data-i18n="confirmPasswordLabel">Confirm Password</label>
+            <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter password" required />
+          </div>
+          <button type="submit" class="solid-button solid-button--full" data-i18n="registerButton">Create Account</button>
+        </form>
+      </section>
+    </div>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>

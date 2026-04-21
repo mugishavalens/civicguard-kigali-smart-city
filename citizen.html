@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CivicGuard Kigali | Citizen Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body data-page="citizen">
+    <div class="page-shell">
+      <header class="site-header site-header--nav">
+        <a class="brand" href="index.html">
+          <span class="brand__mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="brand__type">
+            <strong>Civic<span>Guard</span></strong>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <a href="index.html" data-i18n="navHome">Home</a>
+          <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+          <a href="index.html#about" data-i18n="navAbout">About Us</a>
+          <a href="index.html#contact" data-i18n="navContact">Contact</a>
+          <a href="citizen.html" data-dashboard-link data-i18n="navDashboard">Dashboard</a>
+        </nav>
+
+        <div class="site-header__actions">
+          <div class="compact-tools compact-tools--labels">
+            <label class="tool-group">
+              <span data-i18n="navLanguage">Language</span>
+              <select id="language-select" class="tool-select" aria-label="Language selector">
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="rw">RW</option>
+              </select>
+            </label>
+            <label class="tool-group">
+              <span data-i18n="navMode">Mode</span>
+              <button id="theme-toggle" class="tool-button" type="button" aria-label="Switch theme">◐</button>
+            </label>
+          </div>
+          <button id="logout-button" class="sign-button sign-button--ghost" type="button" data-i18n="logoutButton">Logout</button>
+        </div>
+      </header>
+
+      <main class="dashboard-ref">
+        <section class="hero-ref hero-ref--dashboard">
+          <div class="hero-ref__copy">
+            <span class="hero-pill" data-i18n="citizenEyebrow">Citizen dashboard</span>
+            <h1 class="display-title display-title--page">
+              <span data-i18n="citizenLineOne">Report local</span>
+              <span class="accent-word" data-i18n="citizenLineTwo">safety incidents</span>
+            </h1>
+            <p class="hero-ref__lede" data-i18n="citizenTitle">Report local safety incidents and follow every update.</p>
+            <p id="session-summary" class="session-line"></p>
+            <div class="stats-strip">
+              <article class="stat-box">
+                <strong id="citizen-total">0</strong>
+                <span data-i18n="reportsFiled">Reports filed</span>
+              </article>
+              <article class="stat-box">
+                <strong id="citizen-open">0</strong>
+                <span data-i18n="activeCases">Active cases</span>
+              </article>
+            </div>
+          </div>
+          <div class="hero-visual hero-visual--dashboard">
+            <img
+              src="https://images.unsplash.com/photo-1489493887464-892be6d1daae?auto=format&fit=crop&w=1500&q=80"
+              alt="City neighborhood street used for community safety monitoring"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        </section>
+
+        <section class="dashboard-columns">
+          <div class="stack">
+            <article class="surface-card" id="report-form">
+              <div class="section-head section-head--tight">
+                <p class="section-tag" data-i18n="newIncidentTitle">New incident report</p>
+                <h2 data-i18n="newIncidentText">Provide accurate details so the city team can respond faster.</h2>
+              </div>
+              <form id="incident-form" class="stack">
+                <div class="field">
+                  <label for="incident-type" data-i18n="incidentType">Incident type</label>
+                  <select id="incident-type" name="type" required>
+                    <option value="Road hazard" data-i18n="typeRoad">Road hazard</option>
+                    <option value="Streetlight outage" data-i18n="typeStreetlight">Streetlight outage</option>
+                    <option value="Suspicious activity" data-i18n="typeSuspicious">Suspicious activity</option>
+                    <option value="Emergency" data-i18n="typeEmergency">Emergency</option>
+                    <option value="Waste dumping" data-i18n="typeWaste">Waste dumping</option>
+                  </select>
+                </div>
+                <div class="field field-grid">
+                  <div>
+                    <label for="incident-location" data-i18n="locationLabel">Location</label>
+                    <input id="incident-location" name="location" type="text" placeholder="Kimironko Sector" required />
+                  </div>
+                  <div>
+                    <label for="incident-urgency" data-i18n="urgencyLabel">Urgency</label>
+                    <select id="incident-urgency" name="urgency" required>
+                      <option value="Low" data-i18n="urgencyLow">Low</option>
+                      <option value="Medium" data-i18n="urgencyMedium">Medium</option>
+                      <option value="High" data-i18n="urgencyHigh">High</option>
+                      <option value="Critical" data-i18n="urgencyCritical">Critical</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="incident-description" data-i18n="descriptionLabel">Description</label>
+                  <textarea id="incident-description" name="description" rows="6" placeholder="Describe what happened, when, and any immediate risks." required></textarea>
+                </div>
+                <button class="solid-button solid-button--full" type="submit" data-i18n="submitIncident">Submit incident</button>
+              </form>
+            </article>
+
+            <article class="surface-card map-card">
+              <div class="section-head section-head--tight">
+                <p class="section-tag">Location preview</p>
+                <h2>Map view of selected incident area.</h2>
+              </div>
+              <iframe
+                id="citizen-map-frame"
+                title="Citizen incident location map"
+                class="map-frame"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=30.0300%2C-1.9800%2C30.1800%2C-1.8600&layer=mapnik"
+              ></iframe>
+              <p id="citizen-map-caption" class="map-caption">Type a location to focus the map around Kigali.</p>
+            </article>
+          </div>
+
+          <article class="surface-card">
+            <div class="section-head section-head--row">
+              <div>
+                <p class="section-tag" data-i18n="statusTrackerTitle">My report status</p>
+                <h2 data-i18n="statusTrackerText">Track the lifecycle of each incident you submitted.</h2>
+              </div>
+              <select id="citizen-filter" class="tool-select tool-select--wide">
+                <option value="all" data-i18n="filterAll">All</option>
+                <option value="Submitted" data-i18n="statusSubmitted">Submitted</option>
+                <option value="In Review" data-i18n="statusReview">In Review</option>
+                <option value="Resolved" data-i18n="statusResolved">Resolved</option>
+              </select>
+            </div>
+            <div id="citizen-reports" class="report-list"></div>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="site-footer__brand">
+          <a class="brand" href="index.html">
+            <span class="brand__mark">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.2 18.4 5v5.5c0 4.3-2.8 8.2-6.4 10.2-3.6-2-6.4-5.9-6.4-10.2V5L12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="brand__type">
+              <strong>Civic<span>Guard</span></strong>
+            </span>
+          </a>
+          <p data-i18n="footerText">Community safety monitoring aligned with the Kigali Smart City Initiative.</p>
+        </div>
+        <div class="site-footer__links">
+          <a href="index.html" data-i18n="navHome">Home</a>
+          <a href="auth.html" data-report-link data-i18n="navReport">Report Incident</a>
+          <a href="index.html#about" data-i18n="navAbout">About Us</a>
+          <a href="index.html#contact" data-i18n="navContact">Contact</a>
+        </div>
+        <div class="site-footer__socials">
+          <a href="https://x.com/kigalicity" target="_blank" rel="noopener noreferrer">X</a>
+          <a href="https://facebook.com/CityofKigali" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a href="https://instagram.com/city_of_kigali" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://linkedin.com/company/city-of-kigali" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+        <div class="site-footer__bottom">
+          <p data-i18n="footerCopyright">© 2026 CivicGuard Kigali • Official Republic of Rwanda Portal</p>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user in the system (Citizen or Admin).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["citizen", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "An incident reported by a citizen.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["fire", "medical", "crime", "traffic", "utilities", "other"] },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "address": { "type": "string" }
+          }
+        },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "resolved", "rejected"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "reporterId": { "type": "string" },
+        "reporterName": { "type": "string" },
+        "adminComment": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "description", "status", "timestamp", "reporterId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles for both citizens and admins."
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "Incident reports filed by citizens."
+    }
+  }
+}
