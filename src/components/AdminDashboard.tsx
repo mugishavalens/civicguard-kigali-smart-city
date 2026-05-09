@@ -23,7 +23,11 @@ import {
   Car,
   Zap,
   HelpCircle,
-  UserPlus
+  UserPlus,
+  Video,
+  VideoOff,
+  Radio,
+  Wifi
 } from 'lucide-react';
 import { 
   BarChart as ReBarChart, 
@@ -40,7 +44,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { subscribeToIncidents, updateIncidentStatus } from '../services/incidentService';
 import { subscribeToUsers } from '../services/userService';
-import { Incident, IncidentStatus, UserProfile, Severity } from '../lib/firebase';
+import { getCctvFeedForSector, CctvRecord } from '../services/cctvService';
+import { Incident, IncidentStatus, UserProfile, Severity, District } from '../lib/firebase';
 import { format } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -815,57 +820,245 @@ function SecurityPerimeter() {
   ]);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-12 rounded-[3.5rem] border border-border shadow-2xl relative overflow-hidden"
-    >
-      <div className="flex items-center justify-between mb-16 relative z-10">
-        <div className="flex items-center gap-6">
-          <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center text-emerald-400 shadow-2xl shadow-emerald-500/20 ring-8 ring-slate-50">
-            <ShieldCheck className="w-10 h-10" />
+    <div className="space-y-8">
+      {/* CCTV Camera Monitor */}
+      <CctvMonitor />
+
+      {/* Security Audit Log */}
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white p-10 rounded-3xl border border-border shadow-xl relative overflow-hidden"
+      >
+        <div className="flex items-center justify-between mb-10 relative z-10">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
+              <ShieldCheck className="w-8 h-8" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-1">Security Audit Log</h2>
+              <div className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-xs text-slate-500 font-black uppercase tracking-[0.3em]">Active Node Monitoring</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Security Perimeter</h2>
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-xs text-slate-500 font-black uppercase tracking-[0.4em]">Active Node Monitoring</p>
+          <div className="hidden lg:flex items-center gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+            <div className="text-right">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Grid Health</p>
+              <p className="text-lg font-black text-emerald-600 uppercase tracking-tighter">Fully Secure</p>
+            </div>
+            <div className="w-px h-10 bg-slate-200" />
+            <div className="text-right">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Encrypted</p>
+              <p className="text-lg font-black text-slate-900 uppercase tracking-tighter">TLS v1.3</p>
             </div>
           </div>
         </div>
-        <div className="hidden lg:flex items-center gap-8 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-          <div className="text-right">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Grid Health</p>
-            <p className="text-xl font-black text-emerald-600 uppercase tracking-tighter">Fully Secure</p>
+
+        <div className="space-y-3 relative z-10">
+          {logs.map((log) => (
+            <motion.div 
+              key={log.id} 
+              whileHover={{ x: 8 }}
+              className="group flex items-center gap-8 py-5 px-8 bg-slate-50/50 hover:bg-slate-900 hover:text-white transition-all rounded-2xl border border-slate-100 hover:border-slate-800"
+            >
+              <div className="w-20 text-[10px] font-black text-slate-400 group-hover:text-emerald-400 font-mono tracking-tighter uppercase">{log.time}</div>
+              <div className="flex-grow">
+                <div className="text-sm font-black tracking-tight uppercase mb-0.5">{log.action}</div>
+                <div className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest">{log.target}</div>
+              </div>
+              <div className="flex items-center gap-4">
+                {log.type === 'CRITICAL' && <AlertCircle className="w-5 h-5 text-rose-500 animate-pulse" />}
+                <span className="px-5 py-1.5 bg-white text-slate-900 group-hover:bg-emerald-500 group-hover:text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-200 group-hover:border-emerald-400 transition-all">
+                  {log.status}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function CctvMonitor() {
+  const [selectedDistrict, setSelectedDistrict] = useState<District>('Gasabo');
+  const [cameras, setCameras] = useState<CctvRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedCam, setSelectedCam] = useState<CctvRecord | null>(null);
+  const districts: District[] = ['Gasabo', 'Nyarugenge', 'Kicukiro'];
+
+  useEffect(() => {
+    setLoading(true);
+    getCctvFeedForSector(selectedDistrict).then((feeds) => {
+      setCameras(feeds);
+      setSelectedCam(feeds[0] || null);
+      setLoading(false);
+    });
+  }, [selectedDistrict]);
+
+  const totalOnline = cameras.filter(c => c.online).length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl"
+    >
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-8 py-5 border-b border-slate-800">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+            <Video className="w-5 h-5 text-emerald-400" />
           </div>
-          <div className="w-px h-12 bg-slate-200" />
-          <div className="text-right">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Encrypted</p>
-            <p className="text-xl font-black text-slate-900 uppercase tracking-tighter">TLS v1.3</p>
+          <div>
+            <h2 className="text-base font-black text-white uppercase tracking-tight">CCTV Camera Monitor</h2>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Kigali Safe City — {totalOnline}/{cameras.length} cameras online
+            </p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Live Feed</span>
         </div>
       </div>
 
-      <div className="space-y-4 relative z-10">
-        {logs.map((log) => (
-          <motion.div 
-            key={log.id} 
-            whileHover={{ x: 10 }}
-            className="group flex items-center gap-10 py-6 px-10 bg-slate-50/50 hover:bg-slate-900 hover:text-white transition-all rounded-[2rem] border border-slate-100 hover:border-slate-800"
-          >
-            <div className="w-24 text-[10px] font-black text-slate-400 group-hover:text-emerald-400 font-mono tracking-tighter uppercase">{log.time}</div>
-            <div className="flex-grow">
-              <div className="text-lg font-black tracking-tight uppercase mb-0.5">{log.action}</div>
-              <div className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest">{log.target}</div>
+      <div className="grid lg:grid-cols-12 gap-0">
+        {/* Camera list sidebar */}
+        <div className="lg:col-span-4 border-r border-slate-800">
+          {/* District tabs */}
+          <div className="flex border-b border-slate-800">
+            {districts.map(d => (
+              <button
+                key={d}
+                onClick={() => setSelectedDistrict(d)}
+                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  selectedDistrict === d
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+
+          {/* Camera list */}
+          <div className="divide-y divide-slate-800">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+              </div>
+            ) : cameras.map(cam => (
+              <button
+                key={cam.unitId}
+                onClick={() => setSelectedCam(cam)}
+                className={`w-full flex items-center gap-4 px-6 py-5 text-left transition-all ${
+                  selectedCam?.unitId === cam.unitId
+                    ? 'bg-slate-800 border-l-2 border-emerald-500'
+                    : 'hover:bg-slate-800/50 border-l-2 border-transparent'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  cam.online ? 'bg-emerald-500/10' : 'bg-slate-700'
+                }`}>
+                  {cam.online
+                    ? <Video className="w-5 h-5 text-emerald-400" />
+                    : <VideoOff className="w-5 h-5 text-slate-500" />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-white uppercase tracking-tight truncate">{cam.unitId}</div>
+                  <div className="text-[10px] text-slate-400 font-bold truncate">{cam.location}</div>
+                  <div className={`mt-1 text-[9px] font-black uppercase tracking-widest ${
+                    cam.online ? 'text-emerald-400' : 'text-slate-600'
+                  }`}>
+                    {cam.online ? '● Online' : '○ Offline'}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main feed viewer */}
+        <div className="lg:col-span-8 p-6 flex flex-col gap-4">
+          {selectedCam ? (
+            <>
+              {/* Simulated video feed */}
+              <div className="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-slate-800">
+                {selectedCam.online ? (
+                  <>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center space-y-3">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto">
+                          <Radio className="w-8 h-8 text-emerald-400 animate-pulse" />
+                        </div>
+                        <p className="text-slate-400 text-sm font-bold">Simulated Live Stream</p>
+                        <p className="text-slate-600 text-[10px] font-mono break-all px-4">{selectedCam.streamUrl}</p>
+                      </div>
+                    </div>
+                    {/* HUD overlays */}
+                    <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-lg">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-[10px] font-black text-white uppercase tracking-widest">REC</span>
+                    </div>
+                    <div className="absolute top-3 right-3 bg-black/60 px-3 py-1.5 rounded-lg">
+                      <span className="text-[10px] font-black text-emerald-400 font-mono">
+                        {new Date().toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-3 bg-black/60 px-3 py-1.5 rounded-lg">
+                      <span className="text-[10px] font-black text-white uppercase tracking-widest">{selectedCam.location}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center space-y-3">
+                    <VideoOff className="w-12 h-12 text-slate-700 mx-auto" />
+                    <p className="text-slate-600 text-sm font-bold uppercase tracking-widest">Camera Offline</p>
+                    <p className="text-slate-700 text-[10px]">No signal from {selectedCam.unitId}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Stream metadata */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-800 rounded-xl p-4">
+                  <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Unit ID</div>
+                  <div className="text-sm font-black text-white font-mono">{selectedCam.unitId}</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4">
+                  <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">District</div>
+                  <div className="text-sm font-black text-emerald-400">{selectedCam.district}</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4 col-span-2">
+                  <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">RTSP Stream URL</div>
+                  <div className="text-[10px] font-mono text-slate-300 break-all">{selectedCam.streamUrl}</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4">
+                  <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</div>
+                  <div className={`text-sm font-black ${selectedCam.online ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {selectedCam.online ? 'Online' : 'Offline'}
+                  </div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4">
+                  <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Last Retrieved</div>
+                  <div className="text-[10px] font-mono text-slate-300">
+                    {selectedCam.retrievedAt ? new Date(selectedCam.retrievedAt).toLocaleTimeString() : '—'}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <Wifi className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+                <p className="text-slate-600 text-sm font-bold">Select a camera to view feed</p>
+              </div>
             </div>
-            <div className="flex items-center gap-6">
-              {log.type === 'CRITICAL' && <AlertCircle className="w-5 h-5 text-rose-500 animate-pulse" />}
-              <span className="px-6 py-2 bg-white text-slate-900 group-hover:bg-emerald-500 group-hover:text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-200 group-hover:border-emerald-400 transition-all">
-                {log.status}
-              </span>
-            </div>
-          </motion.div>
-        ))}
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -974,6 +1167,44 @@ function IncidentInspector({ incident, onClose, onUpdate }: { incident: Incident
                   "{incident.description}"
                 </p>
               </div>
+            </div>
+          </section>
+
+          {/* CCTV Feed */}
+          <section>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">CCTV Sector Feed</h3>
+            <div className="bg-slate-900 rounded-2xl overflow-hidden">
+              {incident.cctvStreamUrl ? (
+                <>
+                  <div className="relative bg-slate-950 aspect-video flex items-center justify-center">
+                    <div className="text-center space-y-2">
+                      <Radio className="w-10 h-10 text-emerald-400 animate-pulse mx-auto" />
+                      <p className="text-slate-400 text-xs font-bold">Simulated Live Stream</p>
+                    </div>
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-[9px] font-black text-white uppercase tracking-widest">REC</span>
+                    </div>
+                    <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded">
+                      <span className="text-[9px] font-black text-slate-300 uppercase">{incident.location.district} District</span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">RTSP Stream URL</div>
+                    <div className="text-[10px] font-mono text-emerald-400 break-all">{incident.cctvStreamUrl}</div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center gap-4 p-5">
+                  <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center shrink-0">
+                    <VideoOff className="w-5 h-5 text-slate-600" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-black text-slate-400 uppercase tracking-wide">No CCTV coverage</div>
+                    <div className="text-[10px] text-slate-600">No camera online for this sector at time of report</div>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 
