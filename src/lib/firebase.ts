@@ -11,6 +11,9 @@ export type IncidentStatus = 'pending' | 'in-progress' | 'resolved' | 'rejected'
 export type IncidentType = 'fire' | 'medical' | 'crime' | 'traffic' | 'utilities' | 'other';
 export type District = 'Gasabo' | 'Nyarugenge' | 'Kicukiro';
 
+/** Severity level following CSMS triage classification. */
+export type Severity = 'P1' | 'P2' | 'P3';
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -30,9 +33,12 @@ export interface Incident {
   };
   description: string;
   status: IncidentStatus;
+  /** P1 = Critical, P2 = High, P3 = Normal */
+  severity: Severity;
   timestamp: any;
   reporterId: string;
   reporterName: string;
   adminComment?: string;
   updatedAt?: any;
+  cctvStreamUrl?: string;
 }

@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Plus, MapPin, Loader2 } from 'lucide-react';
-import { reportIncident } from '../services/incidentService';
-import { IncidentType, District } from '../lib/firebase';
+import { reportIncident, classifySeverity } from '../services/incidentService';
+import { IncidentType, District, Severity } from '../lib/firebase';
 
 interface IncidentFormProps {
   onClose: () => void;
   userId: string;
   userName: string;
 }
+
+const SEVERITY_STYLES: Record<Severity, { label: string; classes: string }> = {
+  P1: { label: 'P1 — Critical', classes: 'bg-red-100 text-red-700 border-red-200' },
+  P2: { label: 'P2 — High',     classes: 'bg-orange-100 text-orange-700 border-orange-200' },
+  P3: { label: 'P3 — Normal',   classes: 'bg-blue-100 text-blue-700 border-blue-200' },
+};
 
 export default function IncidentForm({ onClose, userId, userName }: IncidentFormProps) {
   const [loading, setLoading] = useState(false);
@@ -117,6 +123,18 @@ export default function IncidentForm({ onClose, userId, userName }: IncidentForm
                 <option value="Kicukiro">📍 Kicukiro District</option>
               </select>
             </div>
+            {(() => {
+              const sev = classifySeverity(formData.type);
+              const style = SEVERITY_STYLES[sev];
+              return (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Auto-classified severity:</span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${style.classes}`}>
+                    {style.label}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <div>

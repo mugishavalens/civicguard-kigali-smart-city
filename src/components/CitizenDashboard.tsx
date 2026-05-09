@@ -13,13 +13,28 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribeToIncidents } from '../services/incidentService';
-import { Incident } from '../lib/firebase';
+import { Incident, Severity } from '../lib/firebase';
 import { format } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { List, Map as MapIcon } from 'lucide-react';
 
-// Fix Leaflet icon issue
+const SEVERITY_STYLES: Record<Severity, { label: string; classes: string }> = {
+  P1: { label: 'P1 — Critical', classes: 'bg-red-100 text-red-700 border-red-200' },
+  P2: { label: 'P2 — High',     classes: 'bg-orange-100 text-orange-700 border-orange-200' },
+  P3: { label: 'P3 — Normal',   classes: 'bg-blue-100 text-blue-700 border-blue-200' },
+};
+
+function SeverityBadge({ severity }: { severity?: Severity }) {
+  const s = severity ?? 'P3';
+  const style = SEVERITY_STYLES[s];
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${style.classes}`}>
+      {style.label}
+    </span>
+  );
+}
+
 const customIcon = new L.DivIcon({
   className: 'custom-div-icon',
   html: `<div class="w-6 h-6 bg-accent rounded-full border-2 border-white shadow-lg flex items-center justify-center">
@@ -136,6 +151,7 @@ export default function CitizenDashboard({
                   <tr className="border-b border-border">
                     <th className="pb-3 text-xs font-semibold text-text-light uppercase">Incident ID</th>
                     <th className="pb-3 text-xs font-semibold text-text-light uppercase">Type</th>
+                    <th className="pb-3 text-xs font-semibold text-text-light uppercase text-center">Severity</th>
                     <th className="pb-3 text-xs font-semibold text-text-light uppercase text-center">Status</th>
                     <th className="pb-3 text-xs font-semibold text-text-light uppercase">Timestamp</th>
                     <th className="pb-3 text-xs font-semibold text-text-light uppercase text-right">Details</th>
@@ -161,6 +177,9 @@ export default function CitizenDashboard({
                       >
                         <td className="py-4 font-bold text-sm">INC-{incident.id.slice(0, 4)}</td>
                         <td className="py-4 text-sm text-text-main font-medium capitalize">{incident.type}</td>
+                        <td className="py-4 text-center">
+                          <SeverityBadge severity={incident.severity} />
+                        </td>
                         <td className="py-4 text-center">
                           <span className={`badge badge-${incident.status}`}>
                             {incident.status.replace('-', ' ')}

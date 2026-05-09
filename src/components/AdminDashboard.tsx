@@ -40,11 +40,27 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { subscribeToIncidents, updateIncidentStatus } from '../services/incidentService';
 import { subscribeToUsers } from '../services/userService';
-import { Incident, IncidentStatus, UserProfile } from '../lib/firebase';
+import { Incident, IncidentStatus, UserProfile, Severity } from '../lib/firebase';
 import { format } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { List, Map as MapIcon } from 'lucide-react';
+
+const SEVERITY_STYLES: Record<Severity, { label: string; classes: string }> = {
+  P1: { label: 'P1', classes: 'bg-red-100 text-red-700 border-red-200' },
+  P2: { label: 'P2', classes: 'bg-orange-100 text-orange-700 border-orange-200' },
+  P3: { label: 'P3', classes: 'bg-blue-100 text-blue-700 border-blue-200' },
+};
+
+function SeverityBadge({ severity }: { severity?: Severity }) {
+  const s = severity ?? 'P3';
+  const style = SEVERITY_STYLES[s];
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${style.classes}`}>
+      {style.label}
+    </span>
+  );
+}
 
 const customIcon = new L.DivIcon({
   className: 'custom-div-icon',
@@ -388,6 +404,7 @@ export default function AdminDashboard() {
                           <tr className="border-b border-border">
                             <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em] pl-4">Sector ID</th>
                             <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em]">Asset Type</th>
+                            <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em] text-center">Severity</th>
                             <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em]">Source Entity</th>
                             <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em] text-center">Status</th>
                             <th className="pb-4 text-[10px] font-black text-text-light uppercase tracking-[0.2em] text-right pr-4">Precinct</th>
@@ -428,6 +445,9 @@ export default function AdminDashboard() {
                                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{incident.reporterId ? 'Citizen Verified' : 'System Generated'}</span>
                                   </div>
                                 </div>
+                              </td>
+                              <td className="py-5 text-center">
+                                <SeverityBadge severity={incident.severity} />
                               </td>
                               <td className="py-5 text-xs text-text-main font-black uppercase tracking-tight whitespace-nowrap">{incident.reporterName}</td>
                               <td className="py-5 text-center">
