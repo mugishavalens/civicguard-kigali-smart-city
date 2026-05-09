@@ -788,38 +788,51 @@
 
   function renderCctvMonitor() {
     var container = document.getElementById('cctv-monitor');
-    if (!container) return;
+    if (!container) { console.log('[CCTV] container not found'); return; }
+    console.log('[CCTV] rendering monitor');
+
     var districts = ['Gasabo', 'Nyarugenge', 'Kicukiro'];
     var cameras = CCTV_CAMERAS[cctvState.district] || [];
     var selectedCam = cameras.find(function(c) { return c.unitId === cctvState.selectedUnitId; }) || cameras[0];
-    var allCams = [].concat(CCTV_CAMERAS.Gasabo, CCTV_CAMERAS.Nyarugenge, CCTV_CAMERAS.Kicukiro);
+    var allCams = CCTV_CAMERAS.Gasabo.concat(CCTV_CAMERAS.Nyarugenge, CCTV_CAMERAS.Kicukiro);
     var totalOnline = allCams.filter(function(c) { return c.online; }).length;
 
     var districtTabs = districts.map(function(d) {
       var active = cctvState.district === d;
-      return '<button onclick="window.selectCctvDistrict(\'' + d + '\')" style="flex:1;padding:10px 4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;border:none;cursor:pointer;background:' + (active ? '#059669' : 'transparent') + ';color:' + (active ? '#fff' : '#64748b') + ';">' + d + '</button>';
+      var bg = active ? '#059669' : 'transparent';
+      var col = active ? '#ffffff' : '#64748b';
+      return '<button onclick="window.selectCctvDistrict(\'' + d + '\')" style="flex:1;padding:10px 4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;border:none;cursor:pointer;background:' + bg + ';color:' + col + ';">' + d + '</button>';
     }).join('');
 
     var cameraItems = cameras.map(function(cam) {
       var sel = selectedCam && selectedCam.unitId === cam.unitId;
-      return '<button onclick="window.selectCctvCamera(\'' + cam.unitId + '\')" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 20px;border:none;cursor:pointer;text-align:left;background:' + (sel ? '#1e293b' : 'transparent') + ';border-left:3px solid ' + (sel ? '#10b981' : 'transparent') + ';">' +
-        '<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:' + (cam.online ? '#10b98120' : '#334155') + ';">' + (cam.online ? camIconOnline() : camIconOffline()) + '</div>' +
-        '<div style="min-width:0;">' +
-          '<div style="font-size:11px;font-weight:900;color:#f1f5f9;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + cam.unitId + '</div>' +
-          '<div style="font-size:10px;color:#64748b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + cam.location + '</div>' +
-          '<div style="margin-top:3px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:' + (cam.online ? '#10b981' : '#475569') + ';">' + (cam.online ? '● Online' : '○ Offline') + '</div>' +
+      var selBg = sel ? '#1e293b' : 'transparent';
+      var selBorder = sel ? '#10b981' : 'transparent';
+      var iconBg = cam.online ? 'rgba(16,185,129,0.15)' : '#334155';
+      var statusCol = cam.online ? '#10b981' : '#475569';
+      return '<button onclick="window.selectCctvCamera(\'' + cam.unitId + '\')" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 20px;border:none;cursor:pointer;text-align:left;background:' + selBg + ';border-left:3px solid ' + selBorder + ';box-sizing:border-box;">' +
+        '<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:' + iconBg + ';">' + (cam.online ? camIconOnline() : camIconOffline()) + '</div>' +
+        '<div style="min-width:0;flex:1;">' +
+          '<div style="font-size:11px;font-weight:900;color:#f1f5f9;text-transform:uppercase;letter-spacing:0.05em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + cam.unitId + '</div>' +
+          '<div style="font-size:10px;color:#64748b;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + cam.location + '</div>' +
+          '<div style="margin-top:3px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:' + statusCol + ';">' + (cam.online ? '● Online' : '○ Offline') + '</div>' +
         '</div></button>';
     }).join('');
 
-    var feedHtml = '';
+    var feedHtml = '<div style="color:#475569;text-align:center;padding:40px;">No cameras available</div>';
     if (selectedCam) {
-      var videoPanel = selectedCam.online
-        ? '<div style="text-align:center;">' +
-            '<div style="width:56px;height:56px;border-radius:50%;background:#10b98115;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">' +
-              '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="6"/><ellipse cx="12" cy="12" rx="4" ry="2"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="18" x2="12" y2="22"/></svg>' +
+      var videoBg = '#020617';
+      var videoInner = '';
+      if (selectedCam.online) {
+        videoInner =
+          '<div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;text-align:center;">' +
+            '<div>' +
+              '<div style="width:56px;height:56px;border-radius:50%;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>' +
+              '</div>' +
+              '<p style="color:#94a3b8;font-size:12px;font-weight:700;margin:0;">Simulated Live Stream</p>' +
+              '<p style="color:#475569;font-size:10px;font-family:monospace;margin:4px 16px 0;word-break:break-all;">' + selectedCam.streamUrl + '</p>' +
             '</div>' +
-            '<p style="color:#94a3b8;font-size:12px;font-weight:700;">Simulated Live Stream</p>' +
-            '<p style="color:#334155;font-size:10px;font-family:monospace;margin-top:4px;padding:0 16px;word-break:break-all;">' + selectedCam.streamUrl + '</p>' +
           '</div>' +
           '<div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.65);padding:4px 10px;border-radius:6px;">' +
             '<span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block;"></span>' +
@@ -830,32 +843,52 @@
           '</div>' +
           '<div style="position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.65);padding:4px 10px;border-radius:6px;">' +
             '<span style="font-size:9px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.1em;">' + selectedCam.location + '</span>' +
-          '</div>'
-        : '<div style="text-align:center;">' +
-            '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 10px;display:block;"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.34l1 1L21 8.845v6.31a1 1 0 0 1-1.447.916L15 14"/><path d="M16 16a2 2 0 0 1-2 2H5a2 2 0 0 0-2-2V8a2 2 0 0 1 .414-1.318"/><line x1="2" y1="2" x2="22" y2="22"/></svg>' +
-            '<p style="color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Camera Offline</p>' +
-            '<p style="color:#334155;font-size:10px;margin-top:4px;">No signal from ' + selectedCam.unitId + '</p>' +
           '</div>';
+      } else {
+        videoInner =
+          '<div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;text-align:center;">' +
+            '<div>' +
+              '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5" style="display:block;margin:0 auto 10px;"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.34l1 1L21 8.845v6.31a1 1 0 0 1-1.447.916L15 14"/><path d="M16 16a2 2 0 0 1-2 2H5a2 2 0 0 0-2-2V8a2 2 0 0 1 .414-1.318"/><line x1="2" y1="2" x2="22" y2="22"/></svg>' +
+              '<p style="color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Camera Offline</p>' +
+              '<p style="color:#334155;font-size:10px;margin:4px 0 0;">No signal from ' + selectedCam.unitId + '</p>' +
+            '</div>' +
+          '</div>';
+      }
+
+      var statusColor = selectedCam.online ? '#10b981' : '#ef4444';
+      var statusText = selectedCam.online ? '● Live — Streaming' : '○ Offline — No Signal';
 
       feedHtml =
-        '<div style="position:relative;background:#020617;border-radius:12px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;border:1px solid #1e293b;overflow:hidden;">' + videoPanel + '</div>' +
+        '<div style="position:relative;width:100%;padding-top:56.25%;background:' + videoBg + ';border-radius:12px;border:1px solid #1e293b;overflow:hidden;">' + videoInner + '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">' +
-          '<div style="background:#1e293b;border-radius:10px;padding:12px;"><div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">Unit ID</div><div style="font-size:12px;font-weight:900;color:#fff;font-family:monospace;">' + selectedCam.unitId + '</div></div>' +
-          '<div style="background:#1e293b;border-radius:10px;padding:12px;"><div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">District</div><div style="font-size:12px;font-weight:900;color:#10b981;">' + cctvState.district + '</div></div>' +
-          '<div style="background:#1e293b;border-radius:10px;padding:12px;grid-column:1/-1;"><div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">RTSP Stream URL</div><div style="font-size:10px;font-family:monospace;color:#94a3b8;word-break:break-all;">' + selectedCam.streamUrl + '</div></div>' +
-          '<div style="background:#1e293b;border-radius:10px;padding:12px;grid-column:1/-1;"><div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">Status</div><div style="font-size:11px;font-weight:900;color:' + (selectedCam.online ? '#10b981' : '#ef4444') + ';text-transform:uppercase;letter-spacing:0.1em;">' + (selectedCam.online ? '● Live — Streaming' : '○ Offline — No Signal') + '</div></div>' +
+          '<div style="background:#1e293b;border-radius:10px;padding:12px;">' +
+            '<div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">Unit ID</div>' +
+            '<div style="font-size:12px;font-weight:900;color:#ffffff;font-family:monospace;">' + selectedCam.unitId + '</div>' +
+          '</div>' +
+          '<div style="background:#1e293b;border-radius:10px;padding:12px;">' +
+            '<div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">District</div>' +
+            '<div style="font-size:12px;font-weight:900;color:#10b981;">' + cctvState.district + '</div>' +
+          '</div>' +
+          '<div style="background:#1e293b;border-radius:10px;padding:12px;grid-column:span 2;">' +
+            '<div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">RTSP Stream URL</div>' +
+            '<div style="font-size:10px;font-family:monospace;color:#94a3b8;word-break:break-all;">' + selectedCam.streamUrl + '</div>' +
+          '</div>' +
+          '<div style="background:#1e293b;border-radius:10px;padding:12px;grid-column:span 2;">' +
+            '<div style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;">Status</div>' +
+            '<div style="font-size:11px;font-weight:900;color:' + statusColor + ';text-transform:uppercase;letter-spacing:0.1em;">' + statusText + '</div>' +
+          '</div>' +
         '</div>';
     }
 
     container.innerHTML =
-      '<div style="background:#0f172a;border-radius:16px;overflow:hidden;border:1px solid #1e293b;margin-bottom:0;">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #1e293b;">' +
+      '<div style="background:#0f172a;border-radius:16px;overflow:hidden;border:1px solid #1e293b;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #1e293b;flex-wrap:wrap;gap:8px;">' +
           '<div style="display:flex;align-items:center;gap:12px;">' +
-            '<div style="width:36px;height:36px;background:#10b98120;border-radius:10px;display:flex;align-items:center;justify-content:center;">' +
-              '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 10 4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.916L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>' +
+            '<div style="width:36px;height:36px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+              '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="m15 10 4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.916L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>' +
             '</div>' +
             '<div>' +
-              '<div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.05em;">CCTV Camera Monitor</div>' +
+              '<div style="font-size:13px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:0.05em;">CCTV Camera Monitor</div>' +
               '<div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;">Kigali Safe City — ' + totalOnline + '/' + allCams.length + ' cameras online</div>' +
             '</div>' +
           '</div>' +
@@ -864,12 +897,12 @@
             '<span style="font-size:10px;font-weight:900;color:#10b981;text-transform:uppercase;letter-spacing:0.1em;">Live Feed</span>' +
           '</div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:260px 1fr;">' +
-          '<div style="border-right:1px solid #1e293b;">' +
+        '<div style="display:flex;flex-wrap:wrap;">' +
+          '<div style="width:260px;flex-shrink:0;border-right:1px solid #1e293b;box-sizing:border-box;">' +
             '<div style="display:flex;border-bottom:1px solid #1e293b;">' + districtTabs + '</div>' +
             '<div>' + cameraItems + '</div>' +
           '</div>' +
-          '<div style="padding:20px;">' + feedHtml + '</div>' +
+          '<div style="flex:1;min-width:280px;padding:20px;box-sizing:border-box;">' + feedHtml + '</div>' +
         '</div>' +
       '</div>';
 
@@ -877,8 +910,8 @@
       clearInterval(window._cctvClockInterval);
       window._cctvClockInterval = setInterval(function() {
         var clock = document.getElementById('cctv-clock');
-        if (clock) clock.textContent = new Date().toLocaleTimeString();
-        else clearInterval(window._cctvClockInterval);
+        if (clock) { clock.textContent = new Date().toLocaleTimeString(); }
+        else { clearInterval(window._cctvClockInterval); }
       }, 1000);
     }
   }
