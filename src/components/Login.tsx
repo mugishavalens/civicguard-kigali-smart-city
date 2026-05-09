@@ -166,9 +166,10 @@ export default function Login() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className={`absolute right-4 font-bold text-sm ${mode === 'signup' ? 'text-[#10B981]' : 'text-[#D946EF]'}`}
+                          className={`absolute right-4 p-1 ${mode === 'signup' ? 'text-[#10B981]' : 'text-[#D946EF]'} hover:opacity-70 transition-opacity`}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
-                          Show
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                       
@@ -207,9 +208,10 @@ export default function Login() {
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-4 font-bold text-sm text-[#10B981]"
+                          className="absolute right-4 p-1 text-[#10B981] hover:opacity-70 transition-opacity"
+                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                         >
-                          Show
+                          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                     </div>
