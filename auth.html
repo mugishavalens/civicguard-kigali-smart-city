@@ -76,7 +76,12 @@
               </div>
               <div class="field">
                 <label for="login-password" data-i18n="passwordLabel">Password</label>
-                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="********" required />
+                <div style="position:relative;display:flex;align-items:center;">
+                  <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="********" required style="flex:1;padding-right:2.8rem;" />
+                  <button type="button" onclick="togglePassword('login-password', this)" aria-label="Toggle password visibility" style="position:absolute;right:0.75rem;background:none;border:none;cursor:pointer;padding:0.25rem;color:#10b981;display:flex;align-items:center;">
+                    <svg id="login-password-eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
               </div>
               <div class="auth-form__meta auth-form__meta--inline">
                 <label class="remember-checkbox">
@@ -162,11 +167,21 @@
           </div>
           <div class="field">
             <label for="register-password" data-i18n="passwordLabel">Password</label>
-            <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Create a strong password" required />
+            <div style="position:relative;display:flex;align-items:center;">
+              <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Create a strong password" required style="flex:1;padding-right:2.8rem;" />
+              <button type="button" onclick="togglePassword('register-password', this)" aria-label="Toggle password visibility" style="position:absolute;right:0.75rem;background:none;border:none;cursor:pointer;padding:0.25rem;color:#10b981;display:flex;align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <div class="field">
             <label for="register-confirm-password" data-i18n="confirmPasswordLabel">Confirm Password</label>
-            <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter password" required />
+            <div style="position:relative;display:flex;align-items:center;">
+              <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter password" required style="flex:1;padding-right:2.8rem;" />
+              <button type="button" onclick="togglePassword('register-confirm-password', this)" aria-label="Toggle password visibility" style="position:absolute;right:0.75rem;background:none;border:none;cursor:pointer;padding:0.25rem;color:#10b981;display:flex;align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <button type="submit" class="solid-button solid-button--full" data-i18n="registerButton">Create Account</button>
         </form>
@@ -174,5 +189,15 @@
     </div>
 
     <script src="assets/app.js"></script>
+    <script>
+      function togglePassword(inputId, btn) {
+        var input = document.getElementById(inputId);
+        var isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.innerHTML = isHidden
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+      }
+    </script>
   </body>
 </html>
