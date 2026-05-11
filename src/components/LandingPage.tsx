@@ -32,10 +32,17 @@ export default function LandingPage() {
                 {t('heroText')}
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/login" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-14 px-8 flex items-center gap-2 text-lg font-bold shadow-xl shadow-emerald-500/20 transition-all">
+                <Link
+                  to="/login"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-14 min-w-[180px] px-8 flex items-center justify-center gap-2 text-lg font-bold shadow-xl shadow-emerald-500/20 transition-all"
+                >
                   {t('heroPrimary')} <ChevronRight className="w-5 h-5" />
                 </Link>
-                <Link to="/login" className="btn-secondary h-14 px-8 flex items-center text-lg">
+                <Link
+                  to="/login"
+                  className="btn-secondary h-14 min-w-[200px] max-w-[260px] px-8 rounded-xl font-bold text-lg flex items-center justify-center text-center"
+                  style={{ whiteSpace: 'normal', fontWeight: 700 }}
+                >
                   {t('heroSecondary')}
                 </Link>
               </div>

@@ -1,49 +1,145 @@
-import { collection, query, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { UserProfile } from '../lib/firebase';
+import {collection, doc, getDocs, query} from 'firebase/firestore';
+import {db, UserProfile} from '../lib/firebase';
 
-/**
- * Subscribe to real-time user profile updates from Firestore.
- * Used by the Admin dashboard to populate the Citizen Registry.
- *
- * @param {(users: UserProfile[]) => void} callback - Invoked on every snapshot update.
- * @returns {() => void} Unsubscribe function to detach the listener.
- */
-export const subscribeToUsers = (callback: (users: UserProfile[]) => void) => {
-  const usersRef = collection(db, 'users');
-  const q = query(usersRef);
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-  return onSnapshot(q, (snapshot) => {
-    const users = snapshot.docs.map(d => ({
-      id: d.id,
-      ...d.data(),
-    })) as UserProfile[];
-    callback(users);
+interface BackendUser {
+  id: number;
+  uid: string;
+  email: string;
+  name: string;
+  role: 'citizen' | 'admin';
+  phone?: string | null;
+  location?: string | null;
+  created_at?: string;
+}
+
+const mapBackendUser = (user: BackendUser): UserProfile => ({
+  id: user.uid,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  createdAt: user.created_at || null,
+});
+
+export const upsertUserToBackend = async (profile: Pick<UserProfile, 'id' | 'name' | 'email' | 'role'>) => {
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      uid: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
+    }),
   });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error || 'Failed to sync user to backend');
+  }
+
+  return mapBackendUser(await response.json());
 };
 
-/**
- * Update the role of a citizen user (citizen ↔ admin).
- * Only callable by an authorized admin session.
- *
- * @param {string} userId - Firestore document ID of the user to update.
- * @param {'citizen' | 'admin'} role - New role to assign.
- * @returns {Promise<void>}
- */
+export const fetchUsers = async (): Promise<UserProfile[]> => {
+  const response = await fetch(`${API_BASE_URL}/users`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error || 'Failed to fetch users');
+  }
+
+  const users = await response.json();
+  return users.map(mapBackendUser);
+};
+
+export const syncFirestoreUsersToBackend = async () => {
+  const usersRef = collection(db, 'users');
+  const snapshot = await getDocs(query(usersRef));
+  const profiles = snapshot.docs.map((entry) => ({
+    id: entry.id,
+    ...entry.data(),
+  })) as UserProfile[];
+
+  await Promise.all(profiles.map((profile) => upsertUserToBackend(profile)));
+  return profiles.length;
+};
+
+export const subscribeToUsers = (
+  callback: (users: UserProfile[]) => void,
+  onError?: (error: Error) => void,
+) => {
+  let stopped = false;
+
+  const refresh = async (backfill = false) => {
+    try {
+      if (backfill) {
+        await syncFirestoreUsersToBackend();
+      }
+
+      const users = await fetchUsers();
+      if (!stopped) {
+        callback(users);
+      }
+    } catch (error) {
+      if (onError) {
+        onError(error as Error);
+        return;
+      }
+
+      throw error;
+    }
+  };
+
+  refresh(true).catch((error) => {
+    if (onError) {
+      onError(error as Error);
+    } else {
+      console.error('Failed to load users from backend', error);
+    }
+  });
+
+  const intervalId = window.setInterval(() => {
+    refresh(false).catch((error) => {
+      if (onError) {
+        onError(error as Error);
+      } else {
+        console.error('Failed to refresh users from backend', error);
+      }
+    });
+  }, 5000);
+
+  return () => {
+    stopped = true;
+    window.clearInterval(intervalId);
+  };
+};
+
 export const updateUserRole = async (userId: string, role: 'citizen' | 'admin') => {
-  const userRef = doc(db, 'users', userId);
-  await updateDoc(userRef, { role });
+  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({role}),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error || 'Failed to update user role');
+  }
 };
 
-/**
- * Delete a user profile document from Firestore.
- * Note: This removes the Firestore record only — Firebase Auth account
- * must be removed separately via the Admin SDK.
- *
- * @param {string} userId - Firestore document ID of the user to delete.
- * @returns {Promise<void>}
- */
 export const deleteUser = async (userId: string) => {
-  const userRef = doc(db, 'users', userId);
-  await deleteDoc(userRef);
+  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error || 'Failed to delete user');
+  }
 };

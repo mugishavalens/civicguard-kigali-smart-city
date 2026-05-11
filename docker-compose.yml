@@ -1,0 +1,78 @@
+version: '3.9'
+
+services:
+  civicguard-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: civicguard-kigali
+    ports:
+      - '3000:80'
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:80']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Development service — hot reload via Vite dev server
+  civicguard-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: civicguard-dev
+    command: npm run dev
+    ports:
+      - '5000:5000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - dev
+
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: civicguard-postgres
+    environment:
+      POSTGRES_USER: civicguard_user
+      POSTGRES_PASSWORD: civicguard_password
+      POSTGRES_DB: civicguard_db
+      POSTGRES_INITDB_ARGS: "-c default_text_search_config=english"
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U civicguard_user -d civicguard_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin Service
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: civicguard-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@civicguard.local
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:

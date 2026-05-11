@@ -5,7 +5,10 @@
     session: "civicguard-session",
     incidents: "civicguard-incidents",
     users: "civicguard-users",
+    pendingUserSync: "civicguard-pending-user-sync",
   };
+
+  const API_BASE_URL = "http://localhost:5000/api";
 
   const translations = {
     en: {
@@ -564,6 +567,80 @@
     write(STORAGE_KEYS.users, users);
   }
 
+  function getPendingUserSync() {
+    return read(STORAGE_KEYS.pendingUserSync, []);
+  }
+
+  function savePendingUserSync(users) {
+    write(STORAGE_KEYS.pendingUserSync, users);
+  }
+
+  function queueUserForSync(user) {
+    const pending = getPendingUserSync();
+    const deduped = pending.filter((entry) => entry.id !== user.id);
+    deduped.push(user);
+    savePendingUserSync(deduped);
+  }
+
+  function clearUserFromSyncQueue(userId) {
+    const pending = getPendingUserSync().filter((entry) => entry.id !== userId);
+    savePendingUserSync(pending);
+  }
+
+  async function syncUserToBackend(user) {
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uid: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || "citizen",
+        location: user.district || "Gasabo",
+      }),
+    });
+
+    if (!response.ok) {
+      let message = "Failed to sync user to PostgreSQL.";
+      try {
+        const error = await response.json();
+        if (error && error.error) message = error.error;
+      } catch (err) {
+        // Ignore response parsing failures and use the default message.
+      }
+      throw new Error(message);
+    }
+
+    clearUserFromSyncQueue(user.id);
+  }
+
+  async function syncAllUsersToBackend() {
+    const savedUsers = getUsers();
+    const pendingUsers = getPendingUserSync();
+    const mergedUsers = [...savedUsers];
+
+    pendingUsers.forEach((pendingUser) => {
+      if (!mergedUsers.some((user) => user.id === pendingUser.id)) {
+        mergedUsers.push(pendingUser);
+      }
+    });
+
+    if (!Array.isArray(mergedUsers) || mergedUsers.length === 0) return;
+
+    const results = await Promise.allSettled(mergedUsers.map((user) => syncUserToBackend(user)));
+    const failed = results.filter((result) => result.status === "rejected");
+
+    if (failed.length) {
+      mergedUsers.forEach((user) => queueUserForSync(user));
+      console.warn(`[UserSync] Failed to sync ${failed.length} user(s) to PostgreSQL. They will retry automatically.`);
+    } else {
+      savePendingUserSync([]);
+      console.log(`[UserSync] Synced ${mergedUsers.length} user(s) to PostgreSQL.`);
+    }
+  }
+
   function getIncidents() {
     return read(STORAGE_KEYS.incidents, []);
   }
@@ -615,6 +692,9 @@
     }
 
     saveUsers(seeded);
+    syncAllUsersToBackend().catch((error) => {
+      console.warn("[UserSync] Initial sync skipped:", error.message || error);
+    });
   }
 
   function seedIncidents() {
@@ -1181,7 +1261,7 @@
       window.location.href = getDashboardHref(user);
     });
 
-    registerForm.addEventListener("submit", (event) => {
+    registerForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(registerForm);
       const name = String(formData.get("name") || "").trim();
@@ -1203,21 +1283,29 @@
         return;
       }
 
-      users.push({
+      const newUser = {
         id: crypto.randomUUID(),
         name,
         email,
         password,
         role: "citizen",
         district: "Gasabo",
-      });
-      saveUsers(users);
-      registerForm.reset();
-      showMessage("register-error", "", false);
-      switchAuthTab("login");
-      showMessage("login-info", t("registerSuccess"), true);
-      const loginEmail = document.getElementById("login-email");
-      if (loginEmail) loginEmail.value = email;
+      };
+
+      try {
+        queueUserForSync(newUser);
+        await syncUserToBackend(newUser);
+        users.push(newUser);
+        saveUsers(users);
+        registerForm.reset();
+        showMessage("register-error", "", false);
+        switchAuthTab("login");
+        showMessage("login-info", t("registerSuccess"), true);
+        const loginEmail = document.getElementById("login-email");
+        if (loginEmail) loginEmail.value = email;
+      } catch (error) {
+        showMessage("register-error", error.message || "Registration failed.", true);
+      }
     });
   }
 

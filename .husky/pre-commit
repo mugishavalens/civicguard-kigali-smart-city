@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🛡️  CivicGuard pre-commit: running lint and tests..."
+
+# Run ESLint — fail commit on any lint error
+npx eslint "src/**/*.{ts,tsx}" --max-warnings=0
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint failed. Commit aborted."
+  exit 1
+fi
+
+# Run Jest — fail commit if any test fails
+npm test -- --passWithNoTests
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Commit aborted."
+  exit 1
+fi
+
+echo "✅ All checks passed. Proceeding with commit."

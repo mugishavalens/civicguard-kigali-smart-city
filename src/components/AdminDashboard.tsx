@@ -44,7 +44,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { subscribeToIncidents, updateIncidentStatus } from '../services/incidentService';
 import { subscribeToUsers } from '../services/userService';
-import { getCctvFeedForSector, CctvRecord } from '../services/cctvService';
+import { getCctvFeedForSector, getFootageArchive, runMotionDetection, CctvRecord, FootageArchiveEntry } from '../services/cctvService';
 import { Incident, IncidentStatus, UserProfile, Severity, District } from '../lib/firebase';
 import { format } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -167,6 +167,9 @@ export default function AdminDashboard() {
 
       unsubscribeUsers = subscribeToUsers((data) => {
         setUsers(data);
+      }, (err) => {
+        console.error('User registry sync error:', err);
+        setError(err.message || 'Failed to synchronize users with PostgreSQL');
       });
       
       const timer = setTimeout(() => {
@@ -887,6 +890,10 @@ function CctvMonitor() {
   const [cameras, setCameras] = useState<CctvRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCam, setSelectedCam] = useState<CctvRecord | null>(null);
+  const [archive, setArchive] = useState<FootageArchiveEntry[]>([]);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [motionResult, setMotionResult] = useState<{ motionDetected: boolean; confidence: number } | null>(null);
+  const [motionLoading, setMotionLoading] = useState(false);
   const districts: District[] = ['Gasabo', 'Nyarugenge', 'Kicukiro'];
 
   useEffect(() => {
@@ -897,6 +904,25 @@ function CctvMonitor() {
       setLoading(false);
     });
   }, [selectedDistrict]);
+
+  useEffect(() => {
+    if (!selectedCam) { setArchive([]); setMotionResult(null); return; }
+    setArchiveLoading(true);
+    setMotionResult(null);
+    getFootageArchive(selectedCam.unitId).then(clips => {
+      setArchive(clips);
+      setArchiveLoading(false);
+    });
+  }, [selectedCam]);
+
+  const handleRunMotion = () => {
+    if (!selectedCam) return;
+    setMotionLoading(true);
+    runMotionDetection(selectedCam.unitId).then(result => {
+      setMotionResult(result);
+      setMotionLoading(false);
+    });
+  };
 
   const totalOnline = cameras.filter(c => c.online).length;
 
@@ -1048,6 +1074,66 @@ function CctvMonitor() {
                     {selectedCam.retrievedAt ? new Date(selectedCam.retrievedAt).toLocaleTimeString() : '—'}
                   </div>
                 </div>
+                {/* AI Motion Detection */}
+                <div className="bg-slate-800 rounded-xl p-4 col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">AI Motion Detection</div>
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                      selectedCam.motionDetectionActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-500'
+                    }`}>
+                      {selectedCam.motionDetectionActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  {motionResult && (
+                    <div className={`flex items-center gap-3 mb-3 p-2 rounded-lg ${
+                      motionResult.motionDetected ? 'bg-red-500/10 border border-red-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'
+                    }`}>
+                      <span className={`text-xs font-black uppercase ${
+                        motionResult.motionDetected ? 'text-red-400' : 'text-emerald-400'
+                      }`}>
+                        {motionResult.motionDetected ? '⚠ Motion Detected' : '✓ Clear'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono ml-auto">Confidence: {(motionResult.confidence * 100).toFixed(0)}%</span>
+                    </div>
+                  )}
+                  <button
+                    onClick={handleRunMotion}
+                    disabled={motionLoading || !selectedCam.online}
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    {motionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Activity className="w-3 h-3" />}
+                    {motionLoading ? 'Analysing...' : 'Run Detection'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Footage Archive */}
+              <div className="bg-slate-800 rounded-xl p-4">
+                <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Footage Archive</div>
+                {archiveLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+                  </div>
+                ) : archive.length === 0 ? (
+                  <p className="text-[10px] text-slate-600 text-center py-2">No archived clips for this unit.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {archive.map((clip, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-slate-900 rounded-lg px-3 py-2">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${
+                          clip.motionDetected ? 'bg-red-500' : 'bg-slate-600'
+                        }`} />
+                        <div className="flex-grow min-w-0">
+                          <div className="text-[9px] font-mono text-slate-400 truncate">{clip.clipUrl.split('/').pop()}</div>
+                          <div className="text-[9px] text-slate-600">{new Date(clip.recordedAt).toLocaleString()} · {clip.durationSeconds}s</div>
+                        </div>
+                        {clip.motionDetected && (
+                          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest shrink-0">Motion</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           ) : (

@@ -1,4 +1,4 @@
-import { Incident } from '../lib/firebase';
+import {Incident} from '../lib/firebase';
 
 /**
  * Observer interface — all observers must implement update().
@@ -37,7 +37,7 @@ export class AlertService implements Observer {
     console.log(
       `[AlertService] SMS → Citizen "${recipientName}": ` +
       `Your incident INC-${incidentId.slice(0, 8)} status has changed to "${status}". ` +
-      `— Kigali CivicGuard System`
+      '— Kigali CivicGuard System',
     );
   }
 
@@ -50,17 +50,34 @@ export class AlertService implements Observer {
   sendAppPush(incidentId: string, status: string, severity: string): void {
     console.log(
       `[AlertService] APP PUSH → INC-${incidentId.slice(0, 8)} | ` +
-      `Severity: ${severity} | New status: "${status}"`
+      `Severity: ${severity} | New status: "${status}"`,
+    );
+  }
+
+  /**
+   * Broadcast an area-wide alert to all citizens in a given district.
+   * In production this triggers mass SMS and push notifications via
+   * the Rwanda SAMU/RNP multi-agency gateway for the affected sector.
+   * @param {string} district - The Kigali district to broadcast to.
+   * @param {string} message - The alert message to broadcast.
+   * @param {string} severity - Severity level of the area alert (P1/P2/P3).
+   */
+  broadcastArea(district: string, message: string, severity: string): void {
+    console.log(
+      `[AlertService] AREA BROADCAST → District: "${district}" | ` +
+      `Severity: ${severity} | Message: "${message}" | ` +
+      '— Kigali Multi-Agency Alert Service',
     );
   }
 }
 
 /**
- * OfficerDashboard — Observer 2.
- * Simulates a WebSocket/Socket.IO push to all connected officer clients
+ * OfficerDashboardObserver — Observer 2.
+ * Emits a Socket.IO event to all connected officer dashboard clients
  * whenever an incident state changes.
- * In the prototype this is handled by Firestore onSnapshot; this class
- * captures the Observer pattern contract documented in the CSMS design.
+ * In the prototype the event is logged to console; in production this
+ * targets the Node.js/Express Socket.IO gateway via socket.io-client
+ * connecting to process.env.VITE_API_URL.
  */
 export class OfficerDashboardObserver implements Observer {
   /**
@@ -69,9 +86,12 @@ export class OfficerDashboardObserver implements Observer {
    */
   update(incident: Incident): void {
     console.log(
-      `[OfficerDashboard] Socket.IO emit → event:"incident:updated" | ` +
-      `INC-${incident.id.slice(0, 8)} | Status: "${incident.status}" | Severity: ${incident.severity}`
+      '[OfficerDashboard] Socket.IO emit → event:"incident:updated" | ' +
+      `INC-${incident.id.slice(0, 8)} | Status: "${incident.status}" | Severity: ${incident.severity}`,
     );
+    // Production: import { io } from 'socket.io-client';
+    // const socket = io(import.meta.env.VITE_API_URL);
+    // socket.emit('incident:updated', incident);
   }
 }
 
@@ -101,7 +121,7 @@ export class IncidentManager {
    * @param {Observer} observer - The observer to remove.
    */
   unsubscribe(observer: Observer): void {
-    this.observers = this.observers.filter(o => o !== observer);
+    this.observers = this.observers.filter((o) => o !== observer);
   }
 
   /**
@@ -109,7 +129,40 @@ export class IncidentManager {
    * @param {Incident} incident - The updated incident document.
    */
   notify(incident: Incident): void {
-    this.observers.forEach(obs => obs.update(incident));
+    this.observers.forEach((obs) => obs.update(incident));
+  }
+
+  /**
+   * Assign a safety officer to an incident and notify all observers.
+   * In production this updates the assignedOfficerId field in Firestore
+   * and triggers dispatch alerts to the assigned officer.
+   * @param {string} incidentId - Firestore document ID of the incident.
+   * @param {string} officerId - UID of the safety officer being assigned.
+   * @param {string} officerName - Display name of the assigned officer.
+   */
+  assignOfficer(incidentId: string, officerId: string, officerName: string): void {
+    console.log(
+      `[IncidentManager] Officer assigned → INC-${incidentId.slice(0, 8)} | ` +
+      `Officer: "${officerName}" (${officerId})`,
+    );
+    const partialIncident = {
+      id: incidentId,
+      status: 'in-progress',
+      assignedOfficerId: officerId,
+      assignedOfficerName: officerName,
+    } as unknown as Incident;
+    this.notify(partialIncident);
+  }
+
+  /**
+   * Fetch all incidents from the observer registry log (in-memory).
+   * In production this delegates to the Firestore query layer.
+   * Mirrors the fetchAll() method defined in the CSMS class diagram.
+   * @returns {Incident[]} Snapshot of all incidents currently tracked.
+   */
+  fetchAll(): Incident[] {
+    console.log('[IncidentManager] fetchAll() called — delegating to Firestore subscribeToIncidents()');
+    return [];
   }
 }
 

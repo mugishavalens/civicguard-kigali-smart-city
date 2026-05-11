@@ -9,9 +9,9 @@ import {
   onSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db, Incident, IncidentType, IncidentStatus, District, Severity } from '../lib/firebase';
-import { incidentManager } from './alertService';
-import { getPrimaryStreamUrl } from './cctvService';
+import {db, Incident, IncidentType, IncidentStatus, District, Severity} from '../lib/firebase';
+import {incidentManager} from './alertService';
+import {getPrimaryStreamUrl} from './cctvService';
 
 export interface FirestoreErrorInfo {
   error: string;
@@ -48,7 +48,7 @@ export const classifySeverity = (type: IncidentType): Severity => {
 const handleFirestoreError = (
   error: any,
   operationType: FirestoreErrorInfo['operationType'],
-  path: string | null = null
+  path: string | null = null,
 ) => {
   if (error.code === 'permission-denied') {
     const errorInfo: FirestoreErrorInfo = {
@@ -65,8 +65,9 @@ const handleFirestoreError = (
 
 /**
  * Submit a new incident report to Firestore.
- * Automatically classifies severity (P1–P3), attaches a simulated CCTV
- * stream URL for the incident's district, and persists the record.
+ * Saves the incident immediately (no CCTV blocking), then asynchronously
+ * retrieves the CCTV stream URL and patches the record once available.
+ * This eliminates the SLA breach caused by the synchronous CCTV call.
  *
  * @param {object} data - Incident payload from the citizen submission form.
  * @param {IncidentType} data.type - Type of incident.
@@ -86,24 +87,36 @@ export const reportIncident = async (data: {
   try {
     const severity = classifySeverity(data.type);
 
-    let cctvStreamUrl: string | null = null;
-    if (data.location.district) {
-      cctvStreamUrl = await getPrimaryStreamUrl(data.location.district);
-    }
-
+    // Save incident immediately — do NOT await CCTV here to avoid blocking officer alert.
     const docRef = await addDoc(collection(db, 'incidents'), {
       ...data,
       severity,
       status: 'pending',
-      cctvStreamUrl: cctvStreamUrl || '',
+      cctvStreamUrl: '',
       timestamp: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
 
     console.log(
       `[IncidentService] New incident created: INC-${docRef.id.slice(0, 8)} | ` +
-      `Type: ${data.type} | Severity: ${severity} | CCTV: ${cctvStreamUrl || 'unavailable'}`
+      `Type: ${data.type} | Severity: ${severity}`,
     );
+
+    // Async CCTV patch — fires after incident is already saved and officer alerted.
+    if (data.location.district) {
+      getPrimaryStreamUrl(data.location.district).then((cctvStreamUrl) => {
+        if (cctvStreamUrl) {
+          updateDoc(docRef, {cctvStreamUrl, updatedAt: serverTimestamp()});
+          console.log(
+            `[CCTVModule] Async patch → INC-${docRef.id.slice(0, 8)} | Stream: ${cctvStreamUrl}`,
+          );
+        } else {
+          console.warn(`[CCTVModule] No online camera for sector "${data.location.district}".`);
+        }
+      }).catch((err) => {
+        console.error('[CCTVModule] Async CCTV retrieval failed:', err);
+      });
+    }
 
     return docRef.id;
   } catch (error) {
@@ -124,7 +137,7 @@ export const reportIncident = async (data: {
 export const updateIncidentStatus = async (
   incidentId: string,
   status: IncidentStatus,
-  adminComment?: string
+  adminComment?: string,
 ) => {
   try {
     const docRef = doc(db, 'incidents', incidentId);
@@ -161,7 +174,7 @@ export const subscribeToIncidents = (
   role: 'citizen' | 'admin',
   userId: string,
   callback: (incidents: Incident[]) => void,
-  onError?: (error: any) => void
+  onError?: (error: any) => void,
 ) => {
   const incidentsRef = collection(db, 'incidents');
   let q;
@@ -172,14 +185,14 @@ export const subscribeToIncidents = (
     q = query(
       incidentsRef,
       where('reporterId', '==', userId),
-      orderBy('timestamp', 'desc')
+      orderBy('timestamp', 'desc'),
     );
   }
 
   return onSnapshot(
     q,
     (snapshot) => {
-      const incidents = snapshot.docs.map(d => ({
+      const incidents = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
       })) as Incident[];
@@ -191,6 +204,6 @@ export const subscribeToIncidents = (
       } else {
         handleFirestoreError(error, 'list', 'incidents');
       }
-    }
+    },
   );
 };

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, UserProfile } from '../lib/firebase';
+import { upsertUserToBackend } from '../services/userService';
 
 interface AuthContextType {
   user: User | null;
@@ -33,31 +34,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        const docRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
+      try {
+        setUser(user);
+        if (user) {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const existingProfile = { id: user.uid, ...docSnap.data() } as UserProfile;
+            await upsertUserToBackend(existingProfile);
+            setProfile(existingProfile);
+          } else {
+            // New user registration
+            const selectedRole = localStorage.getItem('civicguard_intended_role') || 'citizen';
+            const newProfile: UserProfile = {
+              id: user.uid,
+              name: user.displayName || 'Anonymous',
+              email: user.email || '',
+              role: selectedRole as 'citizen' | 'admin',
+              createdAt: serverTimestamp(),
+            };
+            await setDoc(docRef, newProfile);
+            await upsertUserToBackend(newProfile);
+            setProfile(newProfile);
+            localStorage.removeItem('civicguard_intended_role');
+          }
         } else {
-          // New user registration
-          const selectedRole = localStorage.getItem('civicguard_intended_role') || 'citizen';
-          const newProfile: UserProfile = {
-            id: user.uid,
-            name: user.displayName || 'Anonymous',
-            email: user.email || '',
-            role: selectedRole as 'citizen' | 'admin',
-            createdAt: serverTimestamp(),
-          };
-          await setDoc(docRef, newProfile);
-          setProfile(newProfile);
-          localStorage.removeItem('civicguard_intended_role');
+          setProfile(null);
         }
-      } else {
+      } catch (error) {
+        console.error('Failed to initialize user profile', error);
         setProfile(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
