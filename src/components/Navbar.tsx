@@ -15,7 +15,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md sticky top-0 z-50">
+    <nav className="border-b border-border bg-panel/85 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="bg-accent p-2 rounded-lg transition-transform group-hover:rotate-12">

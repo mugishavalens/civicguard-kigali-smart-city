@@ -5,14 +5,16 @@
 @theme {
   --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
   --font-display: "Inter", sans-serif;
-  
+
   --color-side-bg: #064e3b;
   --color-main-bg: #f3f4f6;
+  --color-panel: #ffffff;
+  --color-panel-soft: #f6fbf9;
   --color-accent: #10b981;
   --color-text-main: #334155;
   --color-text-light: #94a3b8;
   --color-border: #e2e8f0;
-  
+
   --color-status-pending: #fbbf24;
   --color-status-active: #3b82f6;
   --color-status-resolved: #10b981;
@@ -23,12 +25,16 @@
 }
 
 body[data-theme="dark"] {
-  --color-main-bg: #0f172a;
-  --color-text-main: #e2e8f0;
-  --color-text-light: #94a3b8;
-  --color-border: #1e293b;
-  --color-side-bg: #08111f;
-  background: #0f172a;
+  --color-main-bg: #0b1718;
+  --color-panel: #102122;
+  --color-panel-soft: #14292a;
+  --color-accent: #2bddaf;
+  --color-text-main: #edf3f5;
+  --color-text-light: #96afb1;
+  --color-border: #244041;
+  --color-side-bg: #071211;
+  background: #0b1718;
+  color-scheme: dark;
 }
 
 body {
@@ -40,7 +46,7 @@ a {
 }
 
 .glass {
-  @apply bg-white border border-border shadow-sm;
+  @apply bg-panel border border-border shadow-sm;
 }
 
 .btn-primary {
@@ -48,15 +54,15 @@ a {
 }
 
 .btn-secondary {
-  @apply bg-white text-text-main border border-border px-4 py-2 rounded-lg font-semibold transition-all hover:bg-slate-50 active:scale-95;
+  @apply bg-panel text-text-main border border-border px-4 py-2 rounded-lg font-semibold transition-all hover:bg-panel-soft active:scale-95;
 }
 
 .input-field {
-  @apply w-full bg-white border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all;
+  @apply w-full bg-panel border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all;
 }
 
 .dashboard-card {
-  @apply bg-white rounded-xl border border-border p-6 shadow-sm;
+  @apply bg-panel rounded-xl border border-border p-6 shadow-sm;
 }
 
 .stat-label {
@@ -75,13 +81,3 @@ a {
 .badge-active { @apply bg-[#dbeafe] text-[#1e40af]; }
 .badge-resolved { @apply bg-[#d1fae5] text-[#065f46]; }
 .badge-rejected { @apply bg-[#fee2e2] text-[#991b1b]; }
-
-body[data-theme="dark"] .dashboard-card,
-body[data-theme="dark"] .glass {
-  @apply bg-slate-900 border-slate-800;
-}
-
-body[data-theme="dark"] nav,
-body[data-theme="dark"] footer {
-  @apply bg-slate-950/90 border-slate-800;
-}

@@ -10,7 +10,7 @@ export default function LandingPage() {
   const { t } = usePreferences();
 
   return (
-    <div className="bg-white dark:bg-slate-950">
+    <div className="bg-main-bg">
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -54,7 +54,7 @@ export default function LandingPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden rotate-3 shadow-2xl relative">
+              <div className="aspect-square bg-panel-soft rounded-[2rem] overflow-hidden rotate-3 shadow-2xl relative">
                 <img
                   src="https://www.safarisrwandasafari.com/wp-content/uploads/2022/09/Kigali-Citys-1.jpg"
                   alt="City Safety"
@@ -64,7 +64,7 @@ export default function LandingPage() {
               </div>
 
               {/* Floating Stat Cards */}
-              <div className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-border flex items-center gap-4 max-w-xs animate-bounce-slow">
+              <div className="absolute -bottom-6 -left-6 bg-panel p-6 rounded-2xl shadow-xl border border-border flex items-center gap-4 max-w-xs animate-bounce-slow">
                 <div className="bg-emerald-50 dark:bg-emerald-950 p-3 rounded-xl">
                   <CheckCircle2 className="w-6 h-6 text-status-resolved" />
                 </div>
@@ -94,7 +94,7 @@ export default function LandingPage() {
             <motion.div
               key={i}
               whileHover={{ y: -5 }}
-              className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-border shadow-sm"
+              className="bg-panel p-8 rounded-2xl border border-border shadow-sm"
             >
               <div className="bg-main-bg w-14 h-14 rounded-xl flex items-center justify-center mb-6">
                 <f.icon className="w-7 h-7 text-emerald-600" />
@@ -107,7 +107,7 @@ export default function LandingPage() {
       </section>
 
       {/* Vision 2026 Section */}
-      <section id="contact" className="py-24 bg-white dark:bg-slate-950 overflow-hidden relative">
+      <section id="contact" className="py-24 bg-main-bg overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50" />
@@ -138,7 +138,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="bg-slate-900 rounded-[3rem] p-12 text-white relative shadow-2xl shadow-emerald-900/20">
+          <div className="bg-[#102728] dark:bg-[#091314] rounded-[3rem] p-12 text-white relative shadow-2xl shadow-emerald-900/20">
             <div className="absolute top-0 right-0 p-8">
               <Shield className="w-12 h-12 text-emerald-500 opacity-20" />
             </div>
@@ -147,10 +147,10 @@ export default function LandingPage() {
               "{t('impactQuote')}"
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-800 rounded-full border border-slate-700" />
+              <div className="w-12 h-12 bg-[#14292a] rounded-full border border-[#244041]" />
               <div>
                 <div className="font-bold">Strategy Office</div>
-                <div className="text-xs text-slate-400 font-medium">Kigali Smart City Initiative</div>
+                <div className="text-xs text-[#96afb1] font-medium">Kigali Smart City Initiative</div>
               </div>
             </div>
           </div>
