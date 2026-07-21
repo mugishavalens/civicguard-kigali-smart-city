@@ -42,8 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (docSnap.exists()) {
             const existingProfile = { id: user.uid, ...docSnap.data() } as UserProfile;
-            await upsertUserToBackend(existingProfile);
             setProfile(existingProfile);
+            upsertUserToBackend(existingProfile).catch((err) => {
+              console.error('Backend profile sync failed (non-fatal)', err);
+            });
           } else {
             // New user registration
             const selectedRole = localStorage.getItem('civicguard_intended_role') || 'citizen';
@@ -55,9 +57,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               createdAt: serverTimestamp(),
             };
             await setDoc(docRef, newProfile);
-            await upsertUserToBackend(newProfile);
             setProfile(newProfile);
             localStorage.removeItem('civicguard_intended_role');
+            upsertUserToBackend(newProfile).catch((err) => {
+              console.error('Backend profile sync failed (non-fatal)', err);
+            });
           }
         } else {
           setProfile(null);
