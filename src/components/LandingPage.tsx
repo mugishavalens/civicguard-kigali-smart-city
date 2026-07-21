@@ -10,7 +10,7 @@ export default function LandingPage() {
   const { t } = usePreferences();
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-slate-950">
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -54,18 +54,18 @@ export default function LandingPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="aspect-square bg-slate-100 rounded-[2rem] overflow-hidden rotate-3 shadow-2xl relative">
-                <img 
+              <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden rotate-3 shadow-2xl relative">
+                <img
                   src="https://www.safarisrwandasafari.com/wp-content/uploads/2022/09/Kigali-Citys-1.jpg"
-                  alt="City Safety" 
+                  alt="City Safety"
                   className="w-full h-full object-cover opacity-90"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-accent/40 to-transparent" />
               </div>
-              
+
               {/* Floating Stat Cards */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-border flex items-center gap-4 max-w-xs animate-bounce-slow">
-                <div className="bg-emerald-50 p-3 rounded-xl">
+              <div className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-border flex items-center gap-4 max-w-xs animate-bounce-slow">
+                <div className="bg-emerald-50 dark:bg-emerald-950 p-3 rounded-xl">
                   <CheckCircle2 className="w-6 h-6 text-status-resolved" />
                 </div>
                 <div>
@@ -91,10 +91,10 @@ export default function LandingPage() {
             { icon: MapPin, title: t('featureGeo'), desc: t('featureGeoText') },
             { icon: Clock, title: t('featureUpdates'), desc: t('featureUpdatesText') }
           ].map((f, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               whileHover={{ y: -5 }}
-              className="bg-white p-8 rounded-2xl border border-border shadow-sm"
+              className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-border shadow-sm"
             >
               <div className="bg-main-bg w-14 h-14 rounded-xl flex items-center justify-center mb-6">
                 <f.icon className="w-7 h-7 text-emerald-600" />
@@ -107,7 +107,7 @@ export default function LandingPage() {
       </section>
 
       {/* Vision 2026 Section */}
-      <section id="contact" className="py-24 bg-white overflow-hidden relative">
+      <section id="contact" className="py-24 bg-white dark:bg-slate-950 overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50" />

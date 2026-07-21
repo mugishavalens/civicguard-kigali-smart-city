@@ -79,7 +79,7 @@ export default function Login() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center font-sans antialiased">
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center font-sans antialiased">
       <div className="max-w-7xl w-full grid lg:grid-cols-[1fr_1.1fr] min-h-screen">
         
         {/* Left Part: Authentication Form */}
@@ -90,16 +90,16 @@ export default function Login() {
             className="w-full max-w-sm mx-auto lg:mx-0"
           >
             <div className="mb-10 text-center lg:text-left">
-              <h1 className="text-[2.5rem] font-bold text-slate-900 tracking-tight leading-tight mb-2">
+              <h1 className="text-[2.5rem] font-bold text-slate-900 dark:text-white tracking-tight leading-tight mb-2">
                 {mode === 'signin' ? 'Welcome Back!' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
               </h1>
-              
-              <div className="flex p-1 bg-slate-50 rounded-xl border border-slate-100 mt-6">
+
+              <div className="flex p-1 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 mt-6">
                 <button
                   type="button"
                   onClick={() => { setMode('signin'); setAuthError(''); }}
                   className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
-                    mode === 'signin' ? 'bg-white shadow-sm text-[#D946EF]' : 'text-slate-400 hover:text-slate-600'
+                    mode === 'signin' ? 'bg-white dark:bg-slate-800 shadow-sm text-[#D946EF]' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                   }`}
                 >
                   Sign In
@@ -108,7 +108,7 @@ export default function Login() {
                   type="button"
                   onClick={() => { setMode('signup'); setAuthError(''); }}
                   className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
-                    mode === 'signup' ? 'bg-white shadow-sm text-[#10B981]' : 'text-slate-400 hover:text-slate-600'
+                    mode === 'signup' ? 'bg-white dark:bg-slate-800 shadow-sm text-[#10B981]' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                   }`}
                 >
                   Register
@@ -128,9 +128,9 @@ export default function Login() {
                   {mode === 'signup' && (
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-slate-400">Full Name</label>
-                      <input 
-                        type="text" 
-                        className="w-full px-4 py-3 rounded-2xl border border-slate-100 bg-slate-50/30 focus:outline-none focus:border-[#10B981] transition-all placeholder:text-slate-400"
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 text-slate-900 dark:text-white focus:outline-none focus:border-[#10B981] transition-all placeholder:text-slate-400"
                         placeholder="Your full name"
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -141,9 +141,9 @@ export default function Login() {
 
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-400">Email address</label>
-                    <input 
-                      type="email" 
-                      className={`w-full px-4 py-3 rounded-2xl border border-slate-100 bg-slate-50/30 focus:outline-none focus:border-[${mode === 'signup' ? '#10B981' : '#D946EF'}] transition-all placeholder:text-slate-400`}
+                    <input
+                      type="email"
+                      className={`w-full px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 text-slate-900 dark:text-white focus:outline-none focus:border-[${mode === 'signup' ? '#10B981' : '#D946EF'}] transition-all placeholder:text-slate-400`}
                       placeholder="you@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -155,9 +155,9 @@ export default function Login() {
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-slate-400">Password</label>
                       <div className="relative flex items-center">
-                        <input 
-                          type={showPassword ? "text" : "password"} 
-                          className={`w-full px-4 py-3 rounded-2xl border border-slate-100 bg-slate-50/30 focus:outline-none focus:border-[${mode === 'signup' ? '#10B981' : '#D946EF'}] transition-all placeholder:text-slate-400`}
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          className={`w-full px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 text-slate-900 dark:text-white focus:outline-none focus:border-[${mode === 'signup' ? '#10B981' : '#D946EF'}] transition-all placeholder:text-slate-400`}
                           placeholder={mode === 'signup' ? "Create a strong password" : "********"}
                           value={formData.password}
                           onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -177,11 +177,11 @@ export default function Login() {
                         <div className="pt-2">
                           <div className="grid grid-cols-4 gap-2 mb-1.5">
                             {[1, 2, 3, 4].map((i) => (
-                              <div 
-                                key={i} 
+                              <div
+                                key={i}
                                 className={`h-1.5 rounded-full transition-all duration-500 ${
-                                  strength.score >= i ? 'bg-[#10B981]' : 'bg-slate-100'
-                                }`} 
+                                  strength.score >= i ? 'bg-[#10B981]' : 'bg-slate-100 dark:bg-slate-800'
+                                }`}
                               />
                             ))}
                           </div>
@@ -197,9 +197,9 @@ export default function Login() {
                     <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-slate-400">Confirm Password</label>
                       <div className="relative flex items-center">
-                        <input 
-                          type={showConfirmPassword ? "text" : "password"} 
-                          className="w-full px-4 py-3 rounded-2xl border border-slate-100 bg-slate-50/30 focus:outline-none focus:border-[#10B981] transition-all placeholder:text-slate-400"
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          className="w-full px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 text-slate-900 dark:text-white focus:outline-none focus:border-[#10B981] transition-all placeholder:text-slate-400"
                           placeholder="Re-enter password"
                           value={formData.confirmPassword}
                           onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
@@ -239,7 +239,7 @@ export default function Login() {
                   )}
 
                   {authError && (
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[13px] font-medium">
+                    <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 rounded-xl text-red-600 dark:text-red-400 text-[13px] font-medium">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       {authError}
                     </div>
@@ -260,7 +260,7 @@ export default function Login() {
                       <button 
                         type="button"
                         onClick={() => signIn('citizen')}
-                        className="w-full h-14 mt-4 flex items-center justify-center gap-3 bg-white border border-slate-100 rounded-2xl font-bold text-slate-700 transition-all hover:bg-slate-50"
+                        className="w-full h-14 mt-4 flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl font-bold text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                         <span className="text-base">Sign in with Google</span>
@@ -271,7 +271,7 @@ export default function Login() {
               </AnimatePresence>
             </form>
 
-            <div className="mt-16 pt-8 border-t border-slate-50 text-center lg:text-left">
+            <div className="mt-16 pt-8 border-t border-slate-50 dark:border-slate-800 text-center lg:text-left">
               <p className="text-[11px] font-bold text-slate-300 uppercase tracking-widest">
                 © {new Date().getFullYear()} CivicGuard Kigali • Official Republic of Rwanda Portal
               </p>

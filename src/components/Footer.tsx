@@ -15,7 +15,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-border bg-white pt-16 pb-8">
+    <footer className="border-t border-border bg-white dark:bg-slate-950 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 grid gap-12 md:grid-cols-4 mb-16">
         <div className="md:col-span-1">
           <Link to="/" className="flex items-center gap-2 group mb-6">
@@ -36,7 +36,7 @@ export default function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-text-light hover:bg-accent hover:text-white transition-all transform hover:-translate-y-1"
+                className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-text-light hover:bg-accent hover:text-white transition-all transform hover:-translate-y-1"
                 aria-label={`Follow us on ${social.name}`}
               >
                 <social.icon className="w-5 h-5" />
@@ -75,7 +75,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-slate-100 pt-8 mt-8">
+      <div className="border-t border-slate-100 dark:border-slate-800 pt-8 mt-8">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-4">
           <p className="text-sm font-medium text-text-light text-center">
             © {currentYear} CivicGuard Kigali • Developed for the{" "}
@@ -83,7 +83,7 @@ export default function Footer() {
               Republic of Rwanda
             </span>
           </p>
-          <div className="flex gap-6 text-xs font-bold text-slate-400 uppercase tracking-widest justify-center">
+          <div className="flex gap-6 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest justify-center">
 
             <a href="#" className="hover:text-accent transition-colors">Privacy</a>
             <a href="#" className="hover:text-accent transition-colors">Terms</a>
