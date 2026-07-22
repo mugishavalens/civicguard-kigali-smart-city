@@ -20,13 +20,10 @@ export default function LandingPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-semibold mb-6">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                {t('heroBadge')}
-              </div>
+              <span className="hero-pill mb-6">{t('heroBadge')}</span>
               <h1 className="text-6xl font-display font-bold text-text-main leading-[1.1] mb-6">
                 {t('heroTitleLine1')} <br />
-                <span className="text-emerald-600 italic">{t('heroTitleAccent')}</span> {t('heroTitleLine2')}
+                <span className="text-accent italic">{t('heroTitleAccent')}</span> {t('heroTitleLine2')}
               </h1>
               <p className="text-xl text-text-light mb-10 max-w-lg leading-relaxed">
                 {t('heroText')}
@@ -34,7 +31,7 @@ export default function LandingPage() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   to="/login"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-14 min-w-[180px] px-8 flex items-center justify-center gap-2 text-lg font-bold shadow-xl shadow-emerald-500/20 transition-all"
+                  className="bg-accent hover:opacity-90 text-white rounded-xl h-14 min-w-[180px] px-8 flex items-center justify-center gap-2 text-lg font-bold shadow-xl shadow-accent/20 transition-all"
                 >
                   {t('heroPrimary')} <ChevronRight className="w-5 h-5" />
                 </Link>
@@ -65,8 +62,8 @@ export default function LandingPage() {
 
               {/* Floating Stat Cards */}
               <div className="absolute -bottom-6 -left-6 bg-panel p-6 rounded-2xl shadow-xl border border-border flex items-center gap-4 max-w-xs animate-bounce-slow">
-                <div className="bg-emerald-50 dark:bg-emerald-950 p-3 rounded-xl">
-                  <CheckCircle2 className="w-6 h-6 text-status-resolved" />
+                <div className="bg-accent-soft p-3 rounded-xl">
+                  <CheckCircle2 className="w-6 h-6 text-accent-deep" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-text-main">12,402</div>
@@ -96,8 +93,8 @@ export default function LandingPage() {
               whileHover={{ y: -5 }}
               className="bg-panel p-8 rounded-2xl border border-border shadow-sm"
             >
-              <div className="bg-main-bg w-14 h-14 rounded-xl flex items-center justify-center mb-6">
-                <f.icon className="w-7 h-7 text-emerald-600" />
+              <div className="bg-accent-soft w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+                <f.icon className="w-7 h-7 text-accent-deep" />
               </div>
               <h3 className="text-xl font-bold text-text-main mb-3">{f.title}</h3>
               <p className="text-text-light leading-relaxed">{f.desc}</p>
@@ -110,27 +107,27 @@ export default function LandingPage() {
       <section id="contact" className="py-24 bg-main-bg overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
-            <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50" />
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-accent-soft rounded-full blur-3xl opacity-50" />
             <h2 className="text-4xl font-display font-bold text-text-main mb-6 relative z-10 leading-tight">
               {t('visionTitle')}
             </h2>
             <div className="space-y-6 relative z-10">
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0 font-bold">01</div>
+                <div className="w-12 h-12 bg-accent-soft rounded-xl flex items-center justify-center text-accent-deep shrink-0 font-bold">01</div>
                 <div>
                   <h4 className="font-bold text-lg">{t('visionOne')}</h4>
                   <p className="text-text-light text-sm">{t('visionOneText')}</p>
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0 font-bold">02</div>
+                <div className="w-12 h-12 bg-accent-soft rounded-xl flex items-center justify-center text-accent-deep shrink-0 font-bold">02</div>
                 <div>
                   <h4 className="font-bold text-lg">{t('visionTwo')}</h4>
                   <p className="text-text-light text-sm">{t('visionTwoText')}</p>
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0 font-bold">03</div>
+                <div className="w-12 h-12 bg-accent-soft rounded-xl flex items-center justify-center text-accent-deep shrink-0 font-bold">03</div>
                 <div>
                   <h4 className="font-bold text-lg">{t('visionThree')}</h4>
                   <p className="text-text-light text-sm">{t('visionThreeText')}</p>

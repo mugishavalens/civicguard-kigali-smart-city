@@ -694,7 +694,7 @@ function CitizenRegistry({ users }: { users: UserProfile[] }) {
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-8"
     >
-      <div className="bg-white p-10 rounded-[3rem] border border-border shadow-2xl relative overflow-hidden">
+      <div className="bg-panel p-10 rounded-[3rem] border border-border shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px] -mr-32 -mt-32" />
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 relative z-10">
           <div>
@@ -753,7 +753,7 @@ function IntelligenceReport({ incidents }: { incidents: Incident[] }) {
       className="space-y-12"
     >
       <div className="grid lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-8 bg-white p-10 rounded-[3rem] border border-border shadow-2xl relative overflow-hidden">
+        <div className="lg:col-span-8 bg-panel p-10 rounded-[3rem] border border-border shadow-2xl relative overflow-hidden">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">Temporal Load</h3>
@@ -850,7 +850,7 @@ function SecurityPerimeter() {
       <motion.div 
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-10 rounded-3xl border border-border shadow-xl relative overflow-hidden"
+        className="bg-panel p-10 rounded-3xl border border-border shadow-xl relative overflow-hidden"
       >
         <div className="flex items-center justify-between mb-10 relative z-10">
           <div className="flex items-center gap-5">
@@ -1208,7 +1208,7 @@ function IncidentInspector({ incident, onClose, onUpdate }: { incident: Incident
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="h-full w-full max-w-xl bg-white shadow-2xl flex flex-col"
+        className="h-full w-full max-w-xl bg-panel shadow-2xl flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">

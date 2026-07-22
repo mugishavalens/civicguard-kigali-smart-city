@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 // Fix Leaflet icon issue
 const customIcon = new L.DivIcon({
   className: 'custom-div-icon',
-  html: `<div class="w-8 h-8 bg-emerald-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center animate-pulse">
+  html: `<div class="w-8 h-8 bg-accent rounded-full border-2 border-white shadow-xl flex items-center justify-center animate-pulse">
           <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
          </div>`,
   iconSize: [32, 32],
@@ -57,26 +57,26 @@ export default function CommunityMap() {
 
   return (
     <main className="p-8 h-screen flex flex-col gap-6">
-      <header className="flex justify-between items-center bg-white p-6 rounded-2xl border border-border shadow-sm">
+      <header className="flex justify-between items-center bg-panel p-6 rounded-2xl border border-border shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-text-main flex items-center gap-2">
-            <Compass className="w-6 h-6 text-emerald-600" />
+            <Compass className="w-6 h-6 text-accent-deep" />
             Kigali Community Map
           </h1>
           <p className="text-text-light text-sm italic">Real-time geospatial safety monitoring across all sectors</p>
         </div>
         <div className="flex gap-4">
-          <div className="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 flex items-center gap-3">
+          <div className="bg-accent-soft px-4 py-2 rounded-xl border border-accent/20 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-emerald-700 font-bold text-xs uppercase tracking-widest">Live Network Active</span>
+            <span className="text-accent-deep font-bold text-xs uppercase tracking-widest">Live Network Active</span>
           </div>
         </div>
       </header>
 
       <div className="flex-grow grid lg:grid-cols-12 gap-6 min-h-0">
-        <div className="lg:col-span-9 bg-white rounded-[2rem] border border-border overflow-hidden shadow-sm relative z-10">
+        <div className="lg:col-span-9 bg-panel rounded-[2rem] border border-border overflow-hidden shadow-sm relative z-10">
           {loading ? (
-            <div className="w-full h-full flex items-center justify-center bg-slate-50">
+            <div className="w-full h-full flex items-center justify-center bg-panel-soft">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                 <p className="text-text-light font-bold text-xs uppercase tracking-widest">Initializing Map Layer...</p>
@@ -137,7 +137,7 @@ export default function CommunityMap() {
         </div>
 
         <div className="lg:col-span-3 flex flex-col gap-6 min-h-0 overflow-y-auto">
-          <div className="dashboard-card bg-emerald-600 text-white border-none p-6">
+          <div className="dashboard-card bg-accent text-white border-none p-6">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Layers className="w-5 h-5" />
               Map Intelligence
@@ -164,9 +164,9 @@ export default function CommunityMap() {
              </h3>
              <div className="space-y-4">
                {incidents.slice(0, 5).map(incident => (
-                 <div key={incident.id} className="p-3 bg-slate-50 rounded-xl border border-border group cursor-pointer hover:border-emerald-200 transition-all">
+                 <div key={incident.id} className="p-3 bg-panel-soft rounded-xl border border-border group cursor-pointer hover:border-emerald-200 transition-all">
                    <div className="flex justify-between text-[10px] font-bold mb-1">
-                     <span className="text-emerald-600 capitalize">{incident.type}</span>
+                     <span className="text-accent-deep capitalize">{incident.type}</span>
                      <span className="text-text-light">{incident.timestamp?.toDate ? format(incident.timestamp.toDate(), 'HH:mm') : 'Now'}</span>
                    </div>
                    <p className="text-xs text-text-main line-clamp-1 font-medium">{incident.description}</p>
@@ -178,13 +178,13 @@ export default function CommunityMap() {
              </div>
           </div>
 
-          <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 italic text-[11px] text-emerald-800 font-medium">
+          <div className="p-4 bg-accent-soft rounded-2xl border border-accent/20 italic text-[11px] text-accent-deep font-medium">
             "Geospatial data helps the <strong>Kigali Strategy Office</strong> identify high-risk zones and allocate resources effectively."
           </div>
         </div>
       </div>
 
-      <footer className="mt-8 pt-6 pb-2 border-t border-slate-100">
+      <footer className="mt-8 pt-6 pb-2 border-t border-border">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">
           © {new Date().getFullYear()} CivicGuard Kigali • Kigali Smart City Initiative • Republic of Rwanda
         </p>
