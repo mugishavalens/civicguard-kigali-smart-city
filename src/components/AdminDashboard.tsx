@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { 
   CheckCircle2, 
   Clock, 
@@ -50,6 +50,7 @@ import { format } from 'date-fns';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { List, Map as MapIcon } from 'lucide-react';
+import Footer from './Footer';
 
 const SEVERITY_STYLES: Record<Severity, { label: string; classes: string }> = {
   P1: { label: 'P1', classes: 'bg-red-100 text-red-700 border-red-200' },
@@ -244,13 +245,13 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-red-100 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-main-bg">
+        <div className="max-w-md w-full bg-panel p-8 rounded-3xl shadow-xl border border-red-100 text-center">
           <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Access Synchronization Failed</h2>
-          <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+          <h2 className="text-xl font-bold text-text-main mb-2">Access Synchronization Failed</h2>
+          <p className="text-text-light text-sm mb-8 leading-relaxed">
             The command center was unable to establish a secure link. {error}
           </p>
           <button 
@@ -266,59 +267,80 @@ export default function AdminDashboard() {
 
   if (!profile || (loading && incidents.length === 0)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-main-bg">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin" />
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Initializing Kigali Command Center...</p>
+          <Loader2 className="w-12 h-12 text-accent animate-spin" />
+          <p className="text-sm font-bold text-text-light uppercase tracking-widest animate-pulse">Initializing Kigali Command Center...</p>
         </div>
       </div>
     );
   }
 
   const currentSection = location.pathname.split('/').pop() || 'admin';
+  const sectionTitle =
+    currentSection === 'users' ? 'Citizen Registry' :
+    currentSection === 'analytics' ? 'Intelligence Report' :
+    currentSection === 'security' ? 'Security Perimeter' : 'Command Center';
+
+  const tabs = [
+    { to: '/admin', label: 'Command Center', match: (s: string) => s === 'admin' || s === 'incidents' },
+    { to: '/admin/users', label: 'Citizen Registry', match: (s: string) => s === 'users' },
+    { to: '/admin/analytics', label: 'System Analytics', match: (s: string) => s === 'analytics' },
+    { to: '/admin/security', label: 'Security Logs', match: (s: string) => s === 'security' },
+  ];
 
   return (
-    <main className="p-8 flex flex-col gap-8 min-h-screen">
-      {/* Header */}
-      <header className="flex justify-between items-center bg-white p-6 rounded-3xl border border-border shadow-md">
-        <div className="flex items-center gap-5">
-          <div className="p-4 bg-emerald-600 rounded-2xl text-white shadow-xl shadow-emerald-600/20 ring-4 ring-emerald-50">
-            <ShieldCheck className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-text-main tracking-tight uppercase">
-              {currentSection === 'admin' ? 'Command Center' : 
-               currentSection === 'incidents' ? 'Incident Archive' :
-               currentSection === 'users' ? 'Citizen Registry' :
-               currentSection === 'analytics' ? 'Intelligence Report' :
-               currentSection === 'security' ? 'Security Perimeter' : 'Command Center'}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-text-light text-[10px] font-black uppercase tracking-[0.2em]">Kigali Strategic Response Network</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-8">
-          <div className="hidden md:flex flex-col items-end">
-            <p className="font-black text-base text-text-main tracking-tight uppercase leading-none mb-1">{profile?.name}</p>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> AUTHORIZED
-              </span>
-              <p className="text-[10px] text-text-light uppercase font-black tracking-widest leading-none">System Supervisor</p>
-            </div>
-          </div>
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="w-14 h-14 rounded-2xl bg-slate-100 border-2 border-white shadow-lg flex items-center justify-center font-black text-slate-400 group cursor-pointer hover:bg-emerald-600 hover:text-white transition-all overflow-hidden relative"
-          >
-            <span className="relative z-10">{profile?.name?.charAt(0) || '?'}</span>
-            <div className="absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-          </motion.div>
-        </div>
-      </header>
+    <div className="bg-main-bg">
+      <section className="px-4 sm:px-6 pt-14 pb-6 max-w-7xl mx-auto">
+        <span className="hero-pill">Admin control center</span>
+        <h1 className="flex flex-col font-bold leading-[0.95] tracking-tight mt-6 mb-4 text-[clamp(2.25rem,4.5vw,3.75rem)]">
+          {sectionTitle}
+          <span className="text-accent italic">Review and respond faster</span>
+        </h1>
+        <p className="text-text-light max-w-2xl text-lg leading-relaxed">
+          Review incidents, respond quickly, and measure city safety performance.
+        </p>
+        <p className="mt-4 font-medium text-text-light">
+          Logged in as admin: <span className="text-text-main font-bold">{profile?.name}</span>
+        </p>
 
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mt-8">
+          <div className="stat-box">
+            <strong>{stats.total}</strong>
+            <span>Total reports</span>
+          </div>
+          <div className="stat-box">
+            <strong>{stats.pending}</strong>
+            <span>Awaiting review</span>
+          </div>
+          <div className="stat-box">
+            <strong>{stats.inProgress}</strong>
+            <span>Active response</span>
+          </div>
+          <div className="stat-box">
+            <strong>{stats.resolved}</strong>
+            <span>Resolved</span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3 mt-10">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className={`px-5 py-2.5 rounded-full border font-bold text-sm transition-all ${
+                tab.match(currentSection)
+                  ? 'bg-accent text-white border-accent'
+                  : 'bg-panel text-text-light border-border hover:text-text-main'
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="px-4 sm:px-6 pb-16 max-w-7xl mx-auto flex flex-col gap-8">
       {currentSection === 'users' ? (
         <CitizenRegistry users={users} />
       ) : currentSection === 'analytics' ? (
@@ -364,18 +386,18 @@ export default function AdminDashboard() {
               <div className="dashboard-card overflow-hidden !p-0">
                 <div className="flex justify-between items-center p-6 border-b border-border">
                   <div className="flex items-center gap-4">
-                    <h2 className="font-black text-base uppercase tracking-tight text-slate-800">Operational Log</h2>
+                    <h2 className="font-black text-base uppercase tracking-tight text-text-main">Operational Log</h2>
                     <div className="flex bg-main-bg p-1 rounded-xl border border-border">
                       <button 
                         onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow-md text-emerald-600' : 'text-text-light hover:text-text-main'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-panel shadow-md text-emerald-600' : 'text-text-light hover:text-text-main'}`}
                         title="List View"
                       >
                         <List className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => setViewMode('map')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'map' ? 'bg-white shadow-md text-emerald-600' : 'text-text-light hover:text-text-main'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'map' ? 'bg-panel shadow-md text-emerald-600' : 'text-text-light hover:text-text-main'}`}
                         title="Map View"
                       >
                         <MapIcon className="w-4 h-4" />
@@ -423,17 +445,17 @@ export default function AdminDashboard() {
                             <tr>
                               <td colSpan={5} className="py-12 text-center">
                                 <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto mb-4" />
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Querying Global Matrix...</p>
+                                <p className="text-[10px] font-black text-text-light uppercase tracking-widest">Querying Global Matrix...</p>
                               </td>
                             </tr>
                           ) : filteredIncidents.length === 0 ? (
                             <tr>
                               <td colSpan={5} className="py-20 text-center">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                  <ShieldAlert className="w-8 h-8 text-slate-300" />
+                                <div className="w-16 h-16 bg-panel-soft rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
+                                  <ShieldAlert className="w-8 h-8 text-text-light" />
                                 </div>
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Zone Clear</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No matching reports in this sector.</p>
+                                <h3 className="text-sm font-black text-text-main uppercase tracking-tight">Zone Clear</h3>
+                                <p className="text-[10px] font-bold text-text-light uppercase tracking-widest">No matching reports in this sector.</p>
                               </td>
                             </tr>
                           ) : filteredIncidents.map((incident) => (
@@ -442,15 +464,15 @@ export default function AdminDashboard() {
                               className="group cursor-pointer hover:bg-emerald-50/50 transition-all border-l-4 border-l-transparent hover:border-l-emerald-500"
                               onClick={() => setSelectedIncident(incident)}
                             >
-                              <td className="py-5 font-black text-[11px] text-slate-400 pl-4 uppercase tracking-tighter">INC-{incident.id.slice(0, 8)}</td>
+                              <td className="py-5 font-black text-[11px] text-text-light pl-4 uppercase tracking-tighter">INC-{incident.id.slice(0, 8)}</td>
                               <td className="py-5">
                                 <div className="flex items-center gap-4">
                                   <div className="shrink-0 group-hover:scale-110 transition-transform duration-300">
                                     {getTypeIcon(incident.type)}
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="text-xs text-slate-900 font-black uppercase tracking-tight leading-none mb-1">{incident.type}</span>
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{incident.reporterId ? 'Citizen Verified' : 'System Generated'}</span>
+                                    <span className="text-xs text-text-main font-black uppercase tracking-tight leading-none mb-1">{incident.type}</span>
+                                    <span className="text-[10px] text-text-light font-bold uppercase tracking-widest">{incident.reporterId ? 'Citizen Verified' : 'System Generated'}</span>
                                   </div>
                                 </div>
                               </td>
@@ -491,12 +513,12 @@ export default function AdminDashboard() {
                               icon={customIcon}
                             >
                               <Popup>
-                                <div className="p-3 min-w-[180px] bg-white rounded-2xl">
+                                <div className="p-3 min-w-[180px] bg-panel rounded-2xl">
                                   <div className={`badge badge-${incident.status} mb-3 w-full text-center shadow-sm`}>
                                     {incident.status.replace('-', ' ')}
                                   </div>
                                   <h3 className="font-black text-sm uppercase tracking-tight mb-1">{incident.type}</h3>
-                                  <p className="text-[10px] font-bold text-slate-500 line-clamp-2 leading-relaxed mb-4">{incident.description}</p>
+                                  <p className="text-[10px] font-bold text-text-light line-clamp-2 leading-relaxed mb-4">{incident.description}</p>
                                   <button 
                                     onClick={() => setSelectedIncident(incident)}
                                     className="w-full py-2.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
@@ -518,8 +540,8 @@ export default function AdminDashboard() {
             {/* Info Area */}
             <div className="lg:col-span-4 space-y-8">
               <div className="dashboard-card !p-0 overflow-hidden">
-                <div className="p-6 border-b border-border bg-slate-50/50">
-                  <h2 className="font-black text-sm uppercase tracking-widest text-slate-800">System Distribution</h2>
+                <div className="p-6 border-b border-border bg-panel-soft/50">
+                  <h2 className="font-black text-sm uppercase tracking-widest text-text-main">System Distribution</h2>
                 </div>
                 <div className="p-6">
                   <div className="h-[200px] cursor-pointer">
@@ -561,7 +583,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="dashboard-card !p-0 overflow-hidden">
-                <div className="p-6 border-b border-border bg-slate-50/50">
+                <div className="p-6 border-b border-border bg-panel-soft/50">
                   <h2 className="font-black text-sm uppercase tracking-widest text-emerald-600">Smart City Architecture</h2>
                 </div>
                 <div className="p-6">
@@ -569,11 +591,11 @@ export default function AdminDashboard() {
                     <HealthNode label="DISTRICT RELAY" details="Kigali Metro Fiber" status="Locked" color="text-emerald-600" />
                     <HealthNode label="RESPONSE CLUSTER" details="Emergency Dispatch API" status="Syncing" color="text-amber-500" />
                     
-                    <div className="mt-8 pt-8 border-t border-dashed border-slate-200">
+                    <div className="mt-8 pt-8 border-t border-dashed border-border">
                       <div className="flex justify-between items-center mb-6">
                         <div className="flex flex-col">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Load Balance</p>
-                          <p className="text-xs font-black text-slate-800 uppercase tracking-tighter">District Density</p>
+                          <p className="text-[10px] font-black text-text-light uppercase tracking-widest leading-none mb-1">Load Balance</p>
+                          <p className="text-xs font-black text-text-main uppercase tracking-tighter">District Density</p>
                         </div>
                         {districtFilter !== 'all' && (
                           <button 
@@ -588,18 +610,18 @@ export default function AdminDashboard() {
                         {stats.districtData.map((d, i) => (
                           <div 
                             key={i} 
-                            className={`flex flex-col gap-2 p-3 rounded-2xl transition-all cursor-pointer group relative ${districtFilter === d.name ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-500/20' : 'bg-slate-50 hover:bg-slate-100'}`}
+                            className={`flex flex-col gap-2 p-3 rounded-2xl transition-all cursor-pointer group relative ${districtFilter === d.name ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-500/20' : 'bg-panel-soft hover:bg-panel'}`}
                             onClick={() => setDistrictFilter(d.name)}
                           >
                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                              <span className={districtFilter === d.name ? 'text-white' : 'text-slate-800'}>{d.name}</span>
-                              <span className={districtFilter === d.name ? 'text-emerald-100' : 'text-slate-400'}>{d.value} Units</span>
+                              <span className={districtFilter === d.name ? 'text-white' : 'text-text-main'}>{d.name}</span>
+                              <span className={districtFilter === d.name ? 'text-emerald-100' : 'text-text-light'}>{d.value} Units</span>
                             </div>
-                            <div className={`w-full h-1.5 rounded-full overflow-hidden ${districtFilter === d.name ? 'bg-white/20' : 'bg-slate-200'}`}>
-                              <motion.div 
+                            <div className={`w-full h-1.5 rounded-full overflow-hidden ${districtFilter === d.name ? 'bg-white/20' : 'bg-border'}`}>
+                              <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${(d.value / (stats.total || 1)) * 100}%` }}
-                                className={`h-full rounded-full ${districtFilter === d.name ? 'bg-white' : 'bg-emerald-500'}`} 
+                                className={`h-full rounded-full ${districtFilter === d.name ? 'bg-white' : 'bg-emerald-500'}`}
                               />
                             </div>
                             {districtFilter === d.name && (
@@ -618,24 +640,21 @@ export default function AdminDashboard() {
           </div>
         </>
       )}
+      </div>
 
       {/* Details Modal */}
       <AnimatePresence>
         {selectedIncident && (
-          <IncidentInspector 
-            incident={selectedIncident} 
-            onClose={() => setSelectedIncident(null)} 
-            onUpdate={handleUpdateStatus} 
+          <IncidentInspector
+            incident={selectedIncident}
+            onClose={() => setSelectedIncident(null)}
+            onUpdate={handleUpdateStatus}
           />
         )}
       </AnimatePresence>
 
-      <footer className="mt-auto pt-12 pb-4 border-t border-slate-100">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">
-          © {new Date().getFullYear()} CivicGuard Kigali • Kigali Strategic Response Network • Republic of Rwanda
-        </p>
-      </footer>
-    </main>
+      <Footer />
+    </div>
   );
 }
 
@@ -648,7 +667,7 @@ function StatCard({ title, value, color, active, onClick }: any) {
       className={`relative p-8 rounded-[2rem] border-2 transition-all cursor-pointer overflow-hidden flex flex-col justify-between h-40 shadow-xl ${
         active 
         ? 'bg-slate-900 border-slate-900 text-white shadow-slate-900/20' 
-        : 'bg-white border-transparent hover:border-emerald-500/30'
+        : 'bg-panel border-transparent hover:border-emerald-500/30'
       }`}
     >
       {active && (
@@ -657,10 +676,10 @@ function StatCard({ title, value, color, active, onClick }: any) {
           className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 blur-[60px]"
         />
       )}
-      <div className={`text-[10px] font-black uppercase tracking-[0.3em] ${active ? 'text-emerald-400' : 'text-slate-400'}`}>{title}</div>
+      <div className={`text-[10px] font-black uppercase tracking-[0.3em] ${active ? 'text-emerald-400' : 'text-text-light'}`}>{title}</div>
       <div className="flex items-end justify-between relative z-10">
-        <div className={`text-5xl font-black tracking-tighter ${active ? 'text-white' : color || 'text-slate-900'}`}>{value}</div>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${active ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-400'}`}>
+        <div className={`text-5xl font-black tracking-tighter ${active ? 'text-white' : color || 'text-text-main'}`}>{value}</div>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${active ? 'bg-emerald-500 text-white' : 'bg-panel-soft text-text-light'}`}>
           <ChevronRight className={`w-6 h-6 transition-transform ${active ? 'rotate-90' : ''}`} />
         </div>
       </div>

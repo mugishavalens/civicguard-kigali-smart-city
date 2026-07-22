@@ -1,17 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PreferencesProvider } from './contexts/PreferencesContext';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import LandingPage from './components/LandingPage';
 import CitizenDashboard from './components/CitizenDashboard';
 import CommunityMap from './components/CommunityMap';
 import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
-import IncidentForm from './components/IncidentForm';
-import { useState } from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'citizen' | 'admin' }) => {
   const { user, profile, loading } = useAuth();
@@ -33,57 +30,37 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
 
 function AppRoutes() {
   const { user, profile } = useAuth();
-  const [isReportFormOpen, setIsReportFormOpen] = useState(false);
 
   return (
     <div className="min-h-screen">
-      {!user && <Navbar />}
+      <Navbar />
       <main className="min-h-screen">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route 
-            path="/citizen/*" 
+          <Route
+            path="/citizen/*"
             element={
               <ProtectedRoute role="citizen">
-                <div className="flex">
-                  <Sidebar role="citizen" onNewReport={() => setIsReportFormOpen(true)} />
-                  <div className="flex-grow pl-64">
-                    <Routes>
-                      <Route index element={<CitizenDashboard onNewReport={() => setIsReportFormOpen(true)} />} />
-                      <Route path="map" element={<CommunityMap />} />
-                    </Routes>
-                  </div>
-                  <AnimatePresence>
-                    {isReportFormOpen && profile && (
-                      <IncidentForm 
-                        onClose={() => setIsReportFormOpen(false)} 
-                        userId={profile.id} 
-                        userName={profile.name} 
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
+                <Routes>
+                  <Route index element={<CitizenDashboard />} />
+                  <Route path="map" element={<CommunityMap />} />
+                </Routes>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/*" 
+          <Route
+            path="/admin/*"
             element={
               <ProtectedRoute role="admin">
-                <div className="flex">
-                  <Sidebar role="admin" />
-                  <div className="flex-grow pl-64">
-                    <Routes>
-                      <Route path="*" element={<AdminDashboard />} />
-                    </Routes>
-                  </div>
-                </div>
+                <Routes>
+                  <Route path="*" element={<AdminDashboard />} />
+                </Routes>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               user ? (
                 <Navigate to={profile?.role === 'admin' ? '/admin' : '/citizen'} />
@@ -103,7 +80,9 @@ export default function App() {
     <PreferencesProvider>
       <AuthProvider>
         <Router>
-          <AppRoutes />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
         </Router>
       </AuthProvider>
     </PreferencesProvider>

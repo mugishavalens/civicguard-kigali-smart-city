@@ -7,13 +7,17 @@
   --font-display: "Inter", sans-serif;
 
   --color-side-bg: #064e3b;
-  --color-main-bg: #f3f4f6;
+  --color-main-bg: #ffffff;
   --color-panel: #ffffff;
   --color-panel-soft: #f6fbf9;
-  --color-accent: #10b981;
-  --color-text-main: #334155;
-  --color-text-light: #94a3b8;
-  --color-border: #e2e8f0;
+  --color-accent: #14b886;
+  --color-accent-deep: #0b9a70;
+  --color-accent-soft: #e9faf4;
+  --color-text-main: #33415c;
+  --color-text-light: #8ea1be;
+  --color-border: #dce8e2;
+  --color-danger: #d9485f;
+  --color-success: #109868;
 
   --color-status-pending: #fbbf24;
   --color-status-active: #3b82f6;
@@ -29,10 +33,14 @@ body[data-theme="dark"] {
   --color-panel: #102122;
   --color-panel-soft: #14292a;
   --color-accent: #2bddaf;
+  --color-accent-deep: #1dc799;
+  --color-accent-soft: rgba(43, 221, 175, 0.1);
   --color-text-main: #edf3f5;
   --color-text-light: #96afb1;
   --color-border: #244041;
   --color-side-bg: #071211;
+  --color-danger: #ff6f7d;
+  --color-success: #34d399;
   background: #0b1718;
   color-scheme: dark;
 }
@@ -58,11 +66,48 @@ a {
 }
 
 .input-field {
-  @apply w-full bg-panel border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all;
+  @apply w-full bg-panel-soft text-text-main border border-border rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all;
+}
+
+.field {
+  @apply grid gap-2;
+}
+
+.field label {
+  @apply text-text-light font-semibold text-sm;
 }
 
 .dashboard-card {
   @apply bg-panel rounded-xl border border-border p-6 shadow-sm;
+}
+
+.surface-card {
+  @apply bg-panel border border-border rounded-[1.7rem] p-6 shadow-[0_20px_50px_rgba(22,54,45,0.08)];
+}
+
+body[data-theme="dark"] .surface-card {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+}
+
+.hero-pill {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent-soft text-accent-deep border border-accent/15 font-bold text-sm;
+}
+
+.hero-pill::before {
+  content: '';
+  @apply w-2.5 h-2.5 rounded-full bg-accent;
+}
+
+.stat-box {
+  @apply px-4 py-4 rounded-2xl bg-panel-soft border border-border;
+}
+
+.stat-box strong {
+  @apply block text-text-main text-[2rem] font-bold tracking-tight;
+}
+
+.stat-box span {
+  @apply text-text-light text-xs font-semibold uppercase tracking-wide;
 }
 
 .stat-label {
